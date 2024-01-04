@@ -1,0 +1,6 @@
+clean-text
+Js2Py
+bs4
+requests
+mini_lambda
+unidecode

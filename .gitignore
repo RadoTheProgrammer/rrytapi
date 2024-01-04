@@ -1,0 +1,8 @@
+._*
+.DS_Store
+__pycache__
+
+tests
+rrytapi_downloads
+rryt/dataprint copy.py
+rryt/players/*
