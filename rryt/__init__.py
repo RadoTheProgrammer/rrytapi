@@ -63,10 +63,10 @@ YTPLAYLIST=YT+"/playlist?list="
 
 class LambdasError(Exception):pass
 
-filenameChars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+filenameChars = "-_.%s%s" % (string.ascii_letters, string.digits)
 
-def toFilename(s):
-    return "".join(c for c in unicodedata.normalize("NFKD",s) if c in filenameChars)
+def to_filename(s):
+    return "".join(c if c in filenameChars else "-" for c in unicodedata.normalize("NFKD",s))
 
 def ajson(data):
     saveinfile(data)
@@ -152,12 +152,13 @@ def tryout(*accessFunctions,errmode="raise",verifIfSame=None):
 
 """
 def showInExplorerFunc(file):
+    
     if sys.platform=="darwin":
         cmd="open -R %s"%repr(file)
     elif sys.platform=="win32":
         cmd='explorer /select, "%s"'%file
     else:
-        raise ValueError("What's the command ?")
+        return
     #print(cmd)
     return subprocess.call(cmd,shell=True)
 
@@ -411,11 +412,16 @@ class Thumbnails(list):
         except:return list(self)[item]
 
 
-def convert_audio(input_file,output_file,ext=None):
-    if not ext:ext=os.path.splitext(output_file)[1].lstrip(".")
+def convert_audio(input_file,output_file="{input_file}.{ext or 'mp3'}",ext=None):
     from pydub import AudioSegment
+    output_file=eval("f"+repr(output_file),locals()) #pylint: disable=W0123
+    print(output_file)
+    if not ext:
+        ext=os.path.splitext(output_file)[1].lstrip(".")
     audio=AudioSegment.from_file(input_file)
     audio.export(output_file,format=ext)
+
+
 
 class Format(Url):
     size=videoQuality=videoQualityType=width=height=pixels\
@@ -488,18 +494,8 @@ class Format(Url):
             #info.audioQuality=displaySetLen(audioQuality,16)
             #super().__init__(self.url,os.path.join(DLDIR,"{fmt.video.id} - {onlyalpha(fmt.video.title)} {fmt.videoOrAudio}#{fmt.itag}.{fmt.extension}"))
     def __repr__(self):return reprWithCls(str(dict(self.info)),self)
-    def format(self,filename):
-        if filename.endswith("."):
-            filename+=self.extension.lstrip(".")
-        s=""
-        for strg,key,_,_ in formatter.parse(filename):
-        #attr=[]
-        #exec("attr.append(%s)"%key)
-            if key:key=str(eval(key))
-            else:key=""
-            s+=strg+key
-        return s
-    def download(self,fileDest="rrytapi_downloads/{self.video.title} #{self.itag}{self.extension}",resume=True,printInfo=True,showInExplorerBool=True,chunk_size=8192,waitIntervalToPrint=1):
+
+    def download(self,fileDest="rrytapi_downloads/{to_filename(self.video.title)}_{self.itag}{self.extension}",resume=True,printInfo=True,showInExplorerBool=True,chunk_size=8192,waitIntervalToPrint=1):
 
         global show
         #show=lambda:subprocess.call(["open","-R",repr(fileDest)]) if showInFinder else lambda:None
@@ -536,7 +532,7 @@ class Format(Url):
                 prt("Not same contentLength: %s != %s"%(contentLength,sContentLength),file=sys.stderr)
         """
         #print("BEFORE: %s"%fileDest)
-        fileDest=self.format(fileDest)
+        fileDest=eval("f"+repr(fileDest),globals(),locals())
         dir=os.path.dirname(fileDest)
         if dir:
             os.makedirs(dir,exist_ok=True)

@@ -35,5 +35,5 @@ def saveinfile(data,file="data.json"):
         f.write(printer(data))
 
 #print(printer({1:2,3:4,50:[1,2]}))
-saveinfile({1:2,3:4,5:6,"abbbbccccc":[1,2,3]})
+#saveinfile({1:2,3:4,5:6,"abbbbccccc":[1,2,3]})
 #dprint({1:2,3:4,5:6})q
