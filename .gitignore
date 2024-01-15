@@ -3,6 +3,7 @@
 __pycache__
 
 tests
-rrytapi_downloads
+rrytapi_*
 rryt/dataprint copy.py
 rryt/players/*
+venv

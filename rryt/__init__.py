@@ -9,24 +9,36 @@ requests
 #print(globals())
 import time
 import sys
-from .dataprint import printer,saveinfile
-import requests
 import re
 import json
-import subprocess
 import os
+import re
 import random
-import unicodedata
-import string
+import unidecode
 import mimetypes
-from cleantext import remove_emoji
 from functools import partial
 import webbrowser
 import builtins
-from string import Formatter
-from .player import Player
+import urllib
+
+from cleantext import remove_emoji
+import requests
 from mini_lambda import x,Constant
-import urllib,os
+
+from rrprettier import prettify,tofile
+from .player import Player
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class TimeIt:
@@ -43,7 +55,7 @@ class Repr:
     def __init__(self,txt):self.txt=txt
     def __repr__(self):return self.txt
 
-formatter=Formatter()
+
 
 ti=TimeIt()
 sys.path[0]=""
@@ -63,13 +75,15 @@ YTPLAYLIST=YT+"/playlist?list="
 
 class LambdasError(Exception):pass
 
-filenameChars = "-_.%s%s" % (string.ascii_letters, string.digits)
 
+
+def _to_filename(s):
+    return re.sub(r'[^\w\s\-]', '', unidecode.unidecode(s.replace(' ', '_')))
 def to_filename(s):
-    return "".join(c if c in filenameChars else "-" for c in unicodedata.normalize("NFKD",s))
-
+    base,ext=os.path.splitext(s)
+    return f"{_to_filename(base)}.{_to_filename(ext)}"
 def ajson(data):
-    saveinfile(data)
+    infile(data)
     assert 0
 
 
@@ -152,6 +166,7 @@ def tryout(*accessFunctions,errmode="raise",verifIfSame=None):
 
 """
 def showInExplorerFunc(file):
+    import subprocess
     
     if sys.platform=="darwin":
         cmd="open -R %s"%repr(file)
@@ -181,17 +196,8 @@ def reprWithCls(string,cls):
     return "<%s: %s>"%(tname(cls),string)
 
 def printerWithCls(data,cls):
-    return reprWithCls("\n"+printer(data),cls)
+    return reprWithCls("\n"+prettify(data),cls)
 
-def formatWithAttrs(string,fmt):
-    s=""
-    for strg,key,_,_ in formatter.parse(string):
-        #attr=[]
-        #exec("attr.append(%s)"%key)
-        if key:key=str(eval(key))
-        else:key=""
-        s+=strg+key
-    return s
 
 
 #def removeEmojis(text):
@@ -406,7 +412,7 @@ class Thumbnails(list):
             self.append(th)
         
     def __repr__(self):
-        return printer(list(self))
+        return prettify(list(self))
     def __getitem__(self,item):
         try:return self.access[item]
         except:return list(self)[item]
@@ -415,7 +421,7 @@ class Thumbnails(list):
 def convert_audio(input_file,output_file="{input_file}.{ext or 'mp3'}",ext=None):
     from pydub import AudioSegment
     output_file=eval("f"+repr(output_file),locals()) #pylint: disable=W0123
-    print(output_file)
+    #print(output_file)
     if not ext:
         ext=os.path.splitext(output_file)[1].lstrip(".")
     audio=AudioSegment.from_file(input_file)
@@ -571,7 +577,10 @@ class Format(Url):
                     #print("HELLO")
                     tt=ntt
                     perSecond=BytesCount(ndl/(ntt-ftt))
-                    prt("Download Progress: %s%% %s/%s  %s/s  last:%s"%(str(round(downloaded/contentLength*100,1)).rjust(4,"0"),str(BytesCount(downloaded)).rjust(7),contentLength,perSecond,Duration(int((contentLength-downloaded)/perSecond))))
+                    download_percentage = round(downloaded / contentLength * 100, 1)
+                    downloaded_bytes = BytesCount(downloaded)
+                    progress_bar = f"Download Progress: {download_percentage:0>4}% {downloaded_bytes}/{contentLength}  {perSecond}/s last:{Duration(int((contentLength - downloaded) / perSecond))}"
+                    prt(progress_bar)
                     pdl=0
         #r=requests.get(str(self),stream=True)
         prt("Downloaded")
@@ -603,7 +612,7 @@ class Formats(list):
     _fmt=None
 
     def __repr__(self):
-        return printer(list(self))
+        return prettify(list(self))
 
     def __call__(self,item):
         return (
@@ -728,7 +737,7 @@ class Info(dict):
     def __exit__(self,type,err,tb):
         self.export()
     def __repr__(self):
-        return printer(dict(self))
+        return prettify(dict(self))
     def __getitem__(self,key):
         value=super().__getitem__(key)
         return value.obj if type(value)==MiniDisplay else value

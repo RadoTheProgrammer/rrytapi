@@ -1,5 +1,5 @@
 import requests,json,js2py
-from .dataprint import dprint
+#from .datapretty import print
 
 import urllib,os
 from bs4 import BeautifulSoup
