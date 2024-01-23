@@ -14,7 +14,6 @@ import json
 import os
 import re
 import random
-import unidecode
 import mimetypes
 from functools import partial
 import webbrowser
@@ -76,9 +75,8 @@ YTPLAYLIST=YT+"/playlist?list="
 class LambdasError(Exception):pass
 
 
-
 def _to_filename(s):
-    return re.sub(r'[^\w\s\-]', '', unidecode.unidecode(s.replace(' ', '_')))
+    
 def to_filename(s):
     base,ext=os.path.splitext(s)
     return f"{_to_filename(base)}.{_to_filename(ext)}"

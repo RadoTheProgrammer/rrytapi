@@ -77,9 +77,9 @@ class Player:
             self.writePyFunction(forceWriteJsFunction)
         #print(".%s.%s"%(self.playersName,self.varname))
         print("rrytapi.%s.%s"%(self.playersName,self.varname))
-        module=__import__("rryt.%s.%s"%(self.playersName,self.varname))
+        module=__import__("rrytapi.%s.%s"%(self.playersName,self.varname))
         print(module)
-        playerModule=getattr(__import__("rryt.%s.%s"%(self.playersName,self.varname)),self.playersName)
+        playerModule=getattr(__import__("rrytapi.%s.%s"%(self.playersName,self.varname)),self.playersName)
         decrypt=getattr(getattr(playerModule,self.varname),self.varname).decrypt
         self._decrypt=decrypt
         return decrypt

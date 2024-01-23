@@ -1,9 +1,10 @@
+# global
 ._*
 .DS_Store
 __pycache__
 
-tests
-rrytapi_*
-rryt/dataprint copy.py
-rryt/players/*
-venv
+# project
+/src/rrytapi/players/*
+/venv
+/sandbox
+/rrytapi_downloads
