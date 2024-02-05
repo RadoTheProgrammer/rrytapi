@@ -1,10 +1,14 @@
-# global
-._*
-.DS_Store
+## all
+/.DS_Store
+/sandbox
+
+## language:python
 __pycache__
+/dist
+/.venv
+/poetry.lock
+/.pytest_cache
 
 # project
 /src/rrytapi/players/*
-/venv
-/sandbox
 /rrytapi_downloads

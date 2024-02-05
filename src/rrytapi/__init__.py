@@ -12,10 +12,8 @@ import sys
 import re
 import json
 import os
-import re
 import random
 import mimetypes
-from functools import partial
 import webbrowser
 import builtins
 import urllib
@@ -75,14 +73,11 @@ YTPLAYLIST=YT+"/playlist?list="
 class LambdasError(Exception):pass
 
 
-def _to_filename(s):
-    
+
 def to_filename(s):
-    base,ext=os.path.splitext(s)
-    return f"{_to_filename(base)}.{_to_filename(ext)}"
-def ajson(data):
-    infile(data)
-    assert 0
+    return re.sub(r'[^\w\.\-_]', "_", s)
+
+
 
 
 def asfunc(lambdaOrFunc):
@@ -265,7 +260,7 @@ class Url:
         return repr(self)
     def __eq__(self,url):
         return str(self)==str(url)
-    def getContentLength(self,tries=3,wait=0):
+    def getContentLength(self,tries=3,wait=1):
         url=self.url
         #print("TRY2")
         #print(self)
@@ -297,7 +292,7 @@ class Url:
         try:raise err
         except Exception as err:
             #print("ERROR: %s"%err)
-            raise ContentLengthError("Cannot extract the contentLength")
+            raise ContentLengthError("Cannot extract the contentLength") from err #TODO fix this bug with multiple tries
 
     def wb_open(self):
         webbrowser.open(str(self))
