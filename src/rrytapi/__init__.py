@@ -1,10 +1,4 @@
 
-"""
-Requirements
-clean-text
-Js2Py
-requests
-"""
 
 #print(globals())
 import time
