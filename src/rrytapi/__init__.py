@@ -11,8 +11,7 @@ import mimetypes
 import webbrowser
 import builtins
 import urllib
-
-from cleantext import remove_emoji
+import cleantext
 import requests
 from mini_lambda import x,Constant
 
@@ -788,7 +787,7 @@ class Video:
                                       Constant(bool)(x["playabilityStatus"].get("liveStreamability")),
                                       xdetails["isLiveContent"]))
             #odata(data)
-            info.title=remove_emoji(lambdas(data,(xdetails,(xmicroformat,getText)),x["title"]))
+            info.title=cleantext.remove_emoji(lambdas(data,(xdetails,(xmicroformat,getText)),x["title"]))
             l=lambdas(data,(xdetails,xmicroformat),Constant(int)(x["lengthSeconds"]),funcVerifIfSame=lambda x,y:abs(x-y)<2)
             #print(l)
             info.duration=Duration(l)
@@ -1159,7 +1158,7 @@ if 1:
                 if not isChild:
                     info.thumbnails=Thumbnails(data)
                 #mypkg.open_data(data)
-                info.title=remove_emoji(getText(data["title"]))
+                info.title=cleantext.remove_emoji(getText(data["title"]))
                 #assert 0
                 #assert 0
                 if not isChild:
