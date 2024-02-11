@@ -2,6 +2,6 @@
 Download a video
 """
 import rrytapi
-v=rrytapi.Video.get("https://www.youtube.com/watch?v=M-mtdN6R3bQ")
-v.download()
+v=rrytapi.get_video("https://youtube.com/watch?v=QegcGsE9tYE")
+v.formats(251).download()
 

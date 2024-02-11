@@ -1,8 +1,13 @@
-import requests,json,js2py
+
 #from .datapretty import print
 
-import urllib,os
+import urllib
+import os
+import json
+
+import requests
 from bs4 import BeautifulSoup
+import js2py
 def rqstGet(url):
     if type(url)==str and url.startswith("http"):return requests.get(url,headers={"Accept-Language": "en-US"}).text
     return url
@@ -135,6 +140,7 @@ class Player:
             v.append(name)
         #print(v)
         #raise ValueError(v)
+        err=None
         for var in v:
             #print(var)
             for sub in ("var %s="%var,"function %s("%var):
@@ -186,7 +192,7 @@ def getItems(d,keys):
 def extractvar(url,varname):
     if type(url)==dict:return url
     soup=BeautifulSoup(rqstGet(url))
-    soup=mypkg.htmlsoup(rqstGet(url))
+    #soup=mypkg.htmlsoup(rqstGet(url))
     #mypkg.open_data(soup)
     #c=mypkg.requests_get(url)
     find="var %s = "%varname
@@ -211,7 +217,7 @@ def getArgs(sigdata):
     args={}
     for arg in sigdata.split("&"):
         k,v=arg.split("=")
-        args[k]=mypkg.unquote(v)
+        args[k]=urllib.parse.unquote(v)
     return args
 #popcorn link: "https://www.youtube.com/watch?v=jwI1j7sslYI"
 #arcades link: https://www.youtube.com/watch?v=-kCePEEBjvc

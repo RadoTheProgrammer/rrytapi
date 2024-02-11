@@ -6,9 +6,12 @@ import json
 import random
 import re
 import sys
+import webbrowser
+import os
 
 import requests
 import rrprettier
+
 YT="https://youtube.com"
 YTWATCH=YT+"/watch?v="
 YTPLAYLIST=YT+"/playlist?list="
@@ -25,9 +28,9 @@ class TimeIt:
         print("%07.3f %07.3f %s"%(tt-self.stt,tt-self.tt,txt))
         self.tt=tt
 
+ti=TimeIt()
 
 
-acceptLang={"Accept-Language": "en-US"}
 
 def extractVar(webpage,varname):
     if type(webpage)==str and webpage.startswith("http"):
@@ -71,7 +74,7 @@ def errToStr(err):
 
 class LambdasError(Exception):pass
 
-def lambdas(xValue,lambdasExpr,endFunc=None,errmode="print",funcVerifIfSame=None):
+def lambdas(xValue,lambdasExpr,endFunc=None,errmode="raise",funcVerifIfSame=None):
     if not funcVerifIfSame:funcVerifIfSame=lambda x,y:x==y
     funcVerifIfSame=asfunc(funcVerifIfSame)
     endFunc=asfunc(endFunc)
@@ -149,42 +152,32 @@ class MiniDisplay:
     def firstChars(cls,obj,l=100):
         return cls(obj,repr(obj[:l]+"..."))
     
-# class Info(dict):
-#     def __init__(self,dst):
-        
-#         object.__setattr__(self,"dst",dst)
-#         #self.dst=dst
-#         self.dst.info=self 
-#         super().__init__()
-
-#     def __enter__(self):
-#         return self
-    
-#     def export(self):
-#         #if error:raise error
-#         for name,value in self.items():
-#             if isinstance(value,MiniDisplay):
-#                 value=value.obj
-#             setattr(self.dst,name,value)
-
-#     def __exit__(self,_type,err,tb):
-#         self.export()
-
-#     def __repr__(self):
-#         return rrprettier.prettify(dict(self))
-    
-#     def __getitem__(self,key):
-#         value=super().__getitem__(key)
-#         return value.obj if type(value)==MiniDisplay else value
-    
-#     __setattr__=dict.__setitem__
-#     __getattr__=__getitem__
-
 class Info(dict):
-    def __init__(self,src,attrs):
-        for attr in attrs:
-            self[attr] = getattr(src,attr)
-            
+    def __init__(self,dst):
+        object.__setattr__(self,"dst",dst)
+        #self.dst=dst
+        self.dst.info=self 
+        super().__init__()
+    def __enter__(self):return self
+    def export(self):
+        #if error:raise error
+        for name,value in self.items():
+            if type(value)==MiniDisplay:
+                value=value.obj
+            setattr(self.dst,name,value)
+    def __exit__(self,_type,err,tb):
+        self.export()
+    def __repr__(self):
+        return rrprettier.prettify(dict(self))
+    def __getitem__(self,key):
+        value=super().__getitem__(key)
+        return value.obj if type(value)==MiniDisplay else value
+    
+    __setattr__=dict.__setitem__
+    __getattr__=__getitem__
+
+
+
 
 class Url:
 
@@ -214,6 +207,7 @@ class Url:
         url=self.url
         #print("TRY2")
         #print(self)
+        err=None
         for _ in range(tries):
             try:
                 for _ in range(1):
@@ -222,27 +216,21 @@ class Url:
                     #print(url)
                     #print("WW")
                     #ti.print("request....")
-                    res=requests.head(url)
+                    res=requests.head(url,timeout=10)
                     #ti.print("requested")
                     res.raise_for_status()
                     headers=res.headers
-                    """
-                    try:url=headers["location"]
-                    except:pass
-                    else:continue
-                    """
+
                     contentLength=BytesCount(headers['content-length'])
                     assert contentLength
                     return contentLength
-            except Exception as e:
+            except Exception as e: #pylint: disable=W0718:broad-exception-caught
                 #print("TOUT")
                 time.sleep(wait)
                 #print(self.url)
                 err=e
-        try:raise err
-        except Exception as err:
-            #print("ERROR: %s"%err)
-            raise ContentLengthError("Cannot extract the contentLength") from err #TODO fix this bug with multiple tries
+
+        raise ContentLengthError("Cannot extract the contentLength") from err 
 
     def wb_open(self):
         webbrowser.open(str(self))
@@ -373,4 +361,68 @@ def getText(data):
 
 class ValueNotFound(Exception):pass
 
+class Size:
+    def __init__(self,width,height):
+        self.width=int(width)
+        self.height=int(height)
+    def __repr__(self):
+        return str(self.width)+"x"+str(self.height)
+    def __iter__(self):return iter((self.width,self.height))
 
+    def __lt__(self,size):
+        size=Size(*size)
+        return (self.width,self.height)<(size.width,size.height)
+    
+class ChannelInfo:
+    def __init__(self,name,id,url,thumbnails=None,badges=[]):
+        with Info(self) as info:
+            info.name=name
+            info.id=id
+            info.url=Url(url)
+            if thumbnails:
+                if type(thumbnails)!=Thumbnails:info.thumbnails=Thumbnails(thumbnails,name="channel %s"%name)
+            info.badges=badges
+    def __repr__(self):
+        return reprWithCls(repr(self.name),self) #pylint: disable=E1101:no-member
+
+acceptLang={"Accept-Language": "en-US"}
+
+class Thumbnail(Url):
+    def __init__(self,thData,name=""):
+        try:
+            self.size=Size(thData["width"],thData["height"])
+        except:print(type(thData))
+        self.name=name
+        self.width=self.size.width
+        self.height=self.size.height
+        super().__init__(thData["url"])
+
+    def __repr__(self):
+        return "<Thumbnail "+str(self.size)+">"
+class Thumbnails(list):
+    #size=videoQuality=videoQualityType=width=height=pixels=qualityLabel\
+    #    =qualityType=fps=
+    def __init__(self,*thumbnails,name=""):
+        super().__init__()
+        self.access={}
+        self.name=name
+        for ths in thumbnails:
+            self.add(ths)
+    def add(self,thumbnails):
+        while type(thumbnails)==dict:
+            thumbnails=thumbnails.get("thumbnail") or thumbnails.get("thumbnails")
+
+        for th in thumbnails:
+
+
+            if type(th)!=Thumbnail:th=Thumbnail(th,self.name)
+            for i in (th.width,th.height,th.width*th.height):
+                if i in self.access:continue
+                self.access[i]=th
+            self.append(th)
+        
+    def __repr__(self):
+        return rrprettier.prettify(list(self))
+    def __getitem__(self,item):
+        try:return self.access[item]
+        except:return list(self)[item]

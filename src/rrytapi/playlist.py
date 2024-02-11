@@ -1,7 +1,12 @@
+from mini_lambda import x,Constant
+
+from . import utils
+from . import searcher
+
 class Playlist(list):
     def __init__(self,data):
         #odata(data)
-        with Info(self) as info:
+        with utils.Info(self) as info:
             renderer=data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]["content"]["sectionListRenderer"]\
                     ["contents"][0]["itemSectionRenderer"]["contents"][0]["playlistVideoListRenderer"]
             xrenderer=Constant(renderer,"renderer")
@@ -11,11 +16,11 @@ class Playlist(list):
                 if videoData.get("continuationItemRenderer"):continue
                 #print(idx)
                 self.append(
-                    VideoR(videoData["playlistVideoRenderer"],fromPlaylist=True)
+                    searcher.VideoR(videoData["playlistVideoRenderer"],fromPlaylist=True)
                 )
                 #videos.append(video)
                 idx+=1
-            info.videos=MiniDisplay.withL(self,"videos")
+            info.videos=utils.MiniDisplay.withL(self,"videos")
             header=data["header"]["playlistHeaderRenderer"]
             #ajson(header)
             xheader=Constant(header,"header")
@@ -23,11 +28,11 @@ class Playlist(list):
             xmicroformat=Constant(microformat,"microformat")
             metadata=data["metadata"]["playlistMetadataRenderer"]
             xmetadata=Constant(metadata,"metadata")
-            info.id=lambdas(data,(xrenderer["playlistId"],xrenderer["targetId"],xheader["playlistId"],
+            info.id=utils.lambdas(data,(xrenderer["playlistId"],xrenderer["targetId"],xheader["playlistId"],
                                   xheader["serviceEndpoints"][0]["playlistEditEndpoint"]["actions"][0]["sourcePlaylistId"]))
-            xbutton=x["button"]["buttonRenderer"]["navigationEndpoint"]["signInEndpoint"]["nextEndpoint"]\
-                                 ["commendMetadata"]["webCommandMetadata"]
-            info.url=Url(lambdas(data,(xheader["saveButton"]["toggleButtonRenderer"]["defaultNavigationEndpoint"]\
+            # xbutton=x["button"]["buttonRenderer"]["navigationEndpoint"]["signInEndpoint"]["nextEndpoint"]\
+            #                      ["commendMetadata"]["webCommandMetadata"]
+            info.url=utils.Url(utils.lambdas(data,(xheader["saveButton"]["toggleButtonRenderer"]["defaultNavigationEndpoint"]\
                                  ["modalEndpoint"]["modal"]["modalWithTitleAndButtonRenderer"]["button"]\
                                  ["buttonRenderer"]["navigationEndpoint"]["signInEndpoint"]["nextEndpoint"]\
                                  ["commandMetadata"]["webCommandMetadata"]["url"],
@@ -36,22 +41,24 @@ class Playlist(list):
                                        xmicroformat["linkAlternates"][0]["hrefUrl"],
                                 
                                        ),
-                                 Url))
+                                 utils.Url))
             
             #info.videoId=header["playEndpoint"]["watchEndpoint"]["videoId"]
             #info.urlWithVideo=Url(lambdas(data,xheader["playEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]))
-            info.title=lambdas(data,(Constant(getText)(xheader["title"]),xmetadata["title"],
+            info.title=utils.lambdas(data,(Constant(utils.getText)(xheader["title"]),xmetadata["title"],
                                      xmicroformat["title"]))
-            info.videosNumber=int(getText(lambdas(data,(xheader["numVideosText"],xheader["stats"][0]))).partition(" ")[0])
-            description=lambdas(data,(Constant(getText)(xheader["descriptionText"]),xmetadata["description"]))
-            info.description=MiniDisplay(description,microformat["description"])
-            info.channel=getChannelInfo(header)
-            info.viewCount=ViewCount(getText(lambdas(data,(xheader["viewCountText"],xheader["stats"][1]))))
-            info.thumbnails=MiniDisplay.withL(Thumbnails(microformat),"thumbnails")
+            info.videosNumber=int(utils.getText(utils.lambdas(data,(xheader["numVideosText"],xheader["stats"][0]))).partition(" ")[0])
+            description=utils.lambdas(data,(Constant(utils.getText)(xheader["descriptionText"]),xmetadata["description"]))
+            info.description=utils.MiniDisplay(description,microformat["description"])
+            info.channel=searcher.getChannelInfo(header)
+            info.viewCount=utils.ViewCount(utils.getText(utils.lambdas(data,(xheader["viewCountText"],xheader["stats"][1]))))
+            info.thumbnails=utils.MiniDisplay.withL(utils.Thumbnails(microformat),"thumbnails")
     @classmethod
     def get(cls,url):
-        url=YTPLAYLIST+getPlaylistId(url)
+        url=utils.YTPLAYLIST+utils.getPlaylistId(url)
         #print(url)
-        return cls(extractVar(url,"ytInitialData"))
+        return cls(utils.extractVar(url,"ytInitialData"))
     def __repr__(self):
-        return printerWithCls(list(self),f"{tname(self)} {repr(self.title)} in {self.url}")
+        return utils.printerWithCls(list(self),f"{utils.tname(self)} {repr(self.title)} in {self.url}") #pylint: disable=E1101:no-member
+    
+get_playlist=Playlist.get

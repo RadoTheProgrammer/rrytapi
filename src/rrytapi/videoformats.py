@@ -1,5 +1,12 @@
 import sys
+import mimetypes
+import time
+import os
 
+import requests
+import rrprettier
+
+from . import utils
 def showInExplorerFunc(file):
     import subprocess
     
@@ -12,14 +19,14 @@ def showInExplorerFunc(file):
     #print(cmd)
     return subprocess.call(cmd,shell=True)
 
-class Format(Url):
+class Format(utils.Url):
     size=videoQuality=videoQualityType=width=height=pixels\
     =qualityLabel=qualityType=fps=audioQuality=sampleRate=audioQualityType\
     =None
     def __init__(self,video,fmtData):
         self.video=video
         #ti.print("HELLO")
-        with Info(self) as info:
+        with utils.Info(self) as info:
             info.itag=int(fmtData["itag"])
             #print("Format %s"%info.itag)
             self._fmtData=fmtData
@@ -44,9 +51,9 @@ class Format(Url):
             self.codecs=eval(self.codecs)
             info.extension=mimetypes.guess_extension(info.mimeType)
             #self.videoOrAudio=info.mimeType.videoOrAudio
-            info.bitrate=Bitrate(fmtData["bitrate"])
+            info.bitrate=utils.Bitrate(fmtData["bitrate"])
             contentLength=fmtData.get("contentLength")
-            info.contentLength=BytesCount(contentLength) if contentLength else None
+            info.contentLength=utils.BytesCount(contentLength) if contentLength else None
             #ti.print("getting content length")
             #contentLength=self.getContentLength()
             #ti.print("getted content length")
@@ -60,8 +67,8 @@ class Format(Url):
                 audioQuality=AudioQuality(fmtData["audioQuality"],sampleRate)
             #ti.print("MIDDLE")
             info.export()
-            if "video" in self.mimeType:
-                info.size=Size(fmtData["width"],fmtData["height"])
+            if "video" in self.mimeType: #pylint: disable=E1101:no-member
+                info.size=utils.Size(fmtData["width"],fmtData["height"])
 
                 info.videoQuality=VideoQuality(fmtData["quality"],fmtData["qualityLabel"])
                 self.videoQualityType=self.qualityType=info.videoQuality.qualityType
@@ -82,9 +89,9 @@ class Format(Url):
             #info.hasAudio=displaySetLen(hasAudio,5)
             #info.audioQuality=displaySetLen(audioQuality,16)
             #super().__init__(self.url,os.path.join(DLDIR,"{fmt.video.id} - {onlyalpha(fmt.video.title)} {fmt.videoOrAudio}#{fmt.itag}.{fmt.extension}"))
-    def __repr__(self):return reprWithCls(str(dict(self.info)),self)
+    def __repr__(self):return utils.reprWithCls(str(dict(self.info)),self) #pylint: disable=E1101:no-member
 
-    def download(self,fileDest="rrytapi_downloads/{to_filename(self.video.title)}_{self.itag}{self.extension}",resume=True,printInfo=True,showInExplorerBool=True,chunk_size=8192,waitIntervalToPrint=1):
+    def download(self,fileDest="rrytapi_downloads/{utils.to_filename(self.video.title)}_{self.itag}{self.extension}",resume=True,printInfo=True,showInExplorerBool=True,chunk_size=8192,waitIntervalToPrint=1):
 
         global show
         #show=lambda:subprocess.call(["open","-R",repr(fileDest)]) if showInFinder else lambda:None
@@ -137,7 +144,7 @@ class Format(Url):
                 sie()
                 return fileDest
             headers={"Range":"bytes=%s-"%downloaded}
-            prt("Download resume at %s"%BytesCount(downloaded))
+            prt("Download resume at %s"%utils.BytesCount(downloaded))
         else:
             with open(fileDest,"wb"):pass
             downloaded=0
@@ -159,26 +166,16 @@ class Format(Url):
                 if ntt>tt+waitIntervalToPrint:
                     #print("HELLO")
                     tt=ntt
-                    perSecond=BytesCount(ndl/(ntt-ftt))
+                    perSecond=utils.BytesCount(ndl/(ntt-ftt))
                     download_percentage = round(downloaded / contentLength * 100, 1)
-                    downloaded_bytes = BytesCount(downloaded)
-                    progress_bar = f"Download Progress: {download_percentage:0>4}% {downloaded_bytes}/{contentLength}  {perSecond}/s last:{Duration(int((contentLength - downloaded) / perSecond))}"
+                    downloaded_bytes = utils.BytesCount(downloaded)
+                    progress_bar = f"Download Progress: {download_percentage:0>4}% {downloaded_bytes}/{contentLength}  {perSecond}/s last:{utils.Duration(int((contentLength - downloaded) / perSecond))}"
                     prt(progress_bar)
                     pdl=0
         #r=requests.get(str(self),stream=True)
         prt("Downloaded")
         return fileDest
-class Size:
-    def __init__(self,width,height):
-        self.width=int(width)
-        self.height=int(height)
-    def __repr__(self):
-        return str(self.width)+"x"+str(self.height)
-    def __iter__(self):return iter((self.width,self.height))
 
-    def __lt__(self,size):
-        size=Size(*size)
-        return (self.width,self.height)<(size.width,size.height)
 
 
 
@@ -196,9 +193,11 @@ class QualityLabel:
         return "%sp%s"%(self.qualityPixels,self.fps if self.fps else "")
 class VideoQuality:
     def __init__(self,qualityType,qualityLabel):
+        if not isinstance(qualityLabel,QualityLabel):
+            qualityLabel=QualityLabel(qualityLabel)
         self.qualityType = self.type = qualityType
         self.qualityPixels=self.pixels=qualityLabel.qualityPixels
-        self.qualityLabel=QualityLabel(qualityLabel)
+        self.qualityLabel=qualityLabel
         self.fps=self.qualityLabel.fps
 
 
@@ -209,10 +208,71 @@ class AudioQuality:
     def __init__(self,qualityType,sampleRate):
         self.qualityType=qualityType.lower().replace("audio_quality_","")
         self.sampleRate=int(sampleRate)
-    type=aliasprop("self.qualityType")
+        self.type=self.qualityType
+
     def __repr__(self):
         return str(self.sampleRate)+"Hz ("+self.qualityType+")"
-    
+class Formats(list):
+    _fmt=None
+
+    def __repr__(self):
+        return rrprettier.prettify(list(self))
+
+    def __call__(self,item):
+        return (
+            self.filtrer(lambda x:x.itag==item) or\
+            self.filtrer(lambda x:item in x.extension) or\
+            self.filtrer(lambda x:x.videoQualityType==item) or\
+            self.filtrer(lambda x:x.audioQualityType==item)
+        )
+        
+    def __getattr__(self,item):
+        try:return getattr(self[0],item)
+        except:
+            try:
+                return self(item)
+            except:
+                raise utils.attrError(self,item)
+        if not self._fmt:
+            self._fmt=self[0]
+            for d in dir(self._fmt):
+                if d.startswith("_") or d=="video":continue
+                #print(self._fmt,d,type(self._fmt))
+                #dddd
+                try:
+                    attr=getattr(self._fmt,d)
+                except Exception as err:
+                    import __main__
+                    __main__._fmt=self._fmt
+                    raise err
+                setattr(self,d,attr)
+        try:return self.__getitem__(item)
+        except:
+            try:return getattr(self._fmt,item)
+            except AttributeError:pass
+        raise utils.attrError(self,item)
+
+    def filtrer(self,condition):
+        #print("LA CONDITION")
+
+        return Formats([fmt for fmt in self if condition(fmt)])
+    #def download(self,url=defaultFileDest):
+    #    url=defaultFileDest.format()
+    @property
+    def video(self):
+        return self.filtrer(lambda fmt:'video' in fmt.mimeType)
+    @property
+    def audio(self):
+        return self.filtrer(lambda fmt:'audio' in fmt.mimeType)
+    @property
+    def withAudio(self):
+        return self.filtrer(lambda fmt:fmt.hasAudio)
+
+    withoutAudio=property(lambda self:self.filtrer(lambda fmt:not fmt.hasAudio))
+
+    #__getattr__=__getitem__
+
+
 class NoneFormats:
     def __getattr__(self,*a,**k):return self
     def __call__(self,*a,**k):return self
