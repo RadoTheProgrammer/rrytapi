@@ -281,3 +281,45 @@ class ChannelPlayerVideoR:
             info.publishedTime=getText(data["publishedTimeText"])
     def __repr__(self):
         return reprWithCls("%s in %s"%(repr(self.title),self.url),self)
+    
+class ChannelInfo:
+    def __init__(self,name,id,url,thumbnails=None,badges=[]):
+        with Info(self) as info:
+            info.name=name
+            info.id=id
+            info.url=Url(url)
+            if thumbnails:
+                if type(thumbnails)!=Thumbnails:info.thumbnails=Thumbnails(thumbnails,name="channel %s"%name)
+            info.badges=badges
+    def __repr__(self):
+        return reprWithCls(repr(self.name),self)
+
+def getBadges(data,key):
+    if not data:return []
+    return [badge["metadataBadgeRenderer"][key] for badge in data]
+
+def getChannelInfo(data,isChannel=False):
+    lmb=[]
+    for name in ("shortBylineText","ownerText","longBylineText"):
+        try:d=data[name]
+        except:continue
+        lmb.append(Constant(d,name))
+
+    channel=lambdas(data,lmb)["runs"][0]
+
+
+    channelPoint=channel["navigationEndpoint"]
+
+    thumbnails=data.get("channelThumbnailSupportedRenderers")
+    thumbnails=[data["thumbnail"]] if isChannel else [data.get("channelThumbnailSupportedRenderers",{}).get("channelThumbnailWithLinkRenderer")]
+    
+
+    return ChannelInfo(channel["text"],
+                        channelPoint["browseEndpoint"]["browseId"],
+                        lambdas(
+                            channelPoint,
+                            (x["commandMetadata"]["webCommandMetadata"]["url"],
+                            x["browseEndpoint"]["canonicalBaseUrl"]),
+                            urllib.parse.unquote),
+                        None if thumbnails in (None,[None]) else Thumbnails(*thumbnails),
+                       getBadges(data.get("ownerBadges"),"tooltip"))

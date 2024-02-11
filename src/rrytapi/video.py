@@ -1,11 +1,12 @@
+from . import utils
 class Video:
     def __init__(self,webpage):
-        data=self._data=extractVar(webpage,"ytInitialPlayerResponse")
+        data=self._data=utils.extractVar(webpage,"ytInitialPlayerResponse")
         #ti.print("webpage getted")
         #odata(data)
         streaming=data["streamingData"]
         details=data["videoDetails"]
-        xdetails=Constant(details,"details")
+        xdetails=utils.Constant(details,"details")
         microformat=data["microformat"]["playerMicroformatRenderer"]
         xmicroformat=Constant(microformat,"microformat")
         
