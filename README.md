@@ -11,27 +11,26 @@ git clone https://github.com/RadoTheProgrammer/rrytapi
 cd rrytapi
 ```
 
-Don't forget to install the requirements
+## Installation
+
+After git cloned the repository, you can run the following command to install:
 
 ```
-pip install -r requirements.txt
+pip install .
 ```
 
-And now, to use it, create a python file (make sure it's in rrytapi's folder) and import `rryt`
 
 ## Usage
 
 To download a video:
 
 ```python
-import rryt
-v=rryt.Video.get(<video url>)
+import rrytypi
+v=rrytypi.Video.get(<video url>)
 v.download()
 ```
 
-You can see it's really simple to use. Normally it'll put in a folder called rrytapi_downloads.
-
-You can also download the audio of a video with
+To download the audio of a video:
 
 ```python
 v.formats.audio.download()
