@@ -1,13 +1,13 @@
 ## all
 .DS_Store
-/sandbox
 
 ## language:python
 __pycache__
 /dist
+/build
 /.venv
 /.pytest_cache
 
 ## project:rrytapi
 /src/rrytapi/players/*
-/rrytapi_downloads
+rrytapi_downloads
