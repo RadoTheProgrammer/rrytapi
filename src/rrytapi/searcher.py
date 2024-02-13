@@ -102,28 +102,28 @@ class PlayListR(ListR):
     def __init__(self,data):
         #mypkg.open_data(data)
         
-        with utils.Info(self) as info:
-            info.id=id=utils.lambdas(data,(x,x["navigationEndpoint"]["watchEndpoint"]),x["playlistId"])
-            info.title=utils.getText(data["title"])
-            info.thumbnails=[utils.Thumbnails(ths) for ths in data["thumbnails"]]
-            info.url=utils.Url(data["viewPlaylistText"]["runs"][0]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
-            info.urlWithVideo=utils.Url(data["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
-            info.videoId=data["navigationEndpoint"]["watchEndpoint"]["videoId"]
-            info.channel=getChannelInfo(data)
+        #with utils-Info(self) as info:
+        self.id=id=utils.lambdas(data,(x,x["navigationEndpoint"]["watchEndpoint"]),x["playlistId"])
+        self.title=utils.getText(data["title"])
+        self.thumbnails=[utils.Thumbnails(ths) for ths in data["thumbnails"]]
+        self.url=utils.Url(data["viewPlaylistText"]["runs"][0]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
+        self.urlWithVideo=utils.Url(data["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
+        self.videoId=data["navigationEndpoint"]["watchEndpoint"]["videoId"]
+        self.channel=getChannelInfo(data)
         super().__init__(data["videos"])
     def __repr__(self):
         return utils.printerWithCls(list(self),"%s %s in %s"%(utils.tname(self),repr(self.title),self.url)) #pylint: disable=E1101:no-member
 class AdR:
     def __init__(self,data):
-        with utils.Info(self) as info:
-            info.thumbnails=utils.Thumbnails(data)
-            info.title=utils.getText(data["title"])
-            info.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
-            info.website=utils.getText(data["websiteText"])
-            point=data["navigationEndpoint"]
-            xpoint=Constant(point,"point")
-            info.url=utils.lambdas(data,(xpoint["commandMetadata"]["webCommandMetadata"],xpoint["urlEndpoint"]),x["url"])
-    def __repr__(self):
+        #with utils-Info(self) as info:
+        self.thumbnails=utils.Thumbnails(data)
+        self.title=utils.getText(data["title"])
+        self.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
+        self.website=utils.getText(data["websiteText"])
+        point=data["navigationEndpoint"]
+        xpoint=Constant(point,"point")
+        self.url=utils.lambdas(data,(xpoint["commandMetadata"]["webCommandMetadata"],xpoint["urlEndpoint"]),x["url"])
+def __repr__(self):
         return utils.reprWithCls("%s in %s"%(repr(self.title),self.website),self) #pylint: disable=E1101:no-member
 
 class VideoR:
@@ -133,98 +133,98 @@ class VideoR:
             #assert 0
         #print(data["navigationEndpoint"])
         #print(open_json(data))
-        with utils.Info(self) as info:
-            point=data["navigationEndpoint"]
-            xpoint=Constant(point,"point")
-            try:
-                info.badges=getBadges(data.get("badges"),"label")
-            except:
-                #mypkg.open_data(data)
-                assert 0
-            hasbadgelive="LIVE" in info.badges
-            islive=tuple(data.get("thumbnailOverlays",[{}])[0].keys())==("thumbnailOverlayToggleButtonRenderer",)
-            self.islive=hasbadgelive or islive
-            self.hasbadgelive=hasbadgelive
-            err=None
-            if hasbadgelive and not islive:
-                print("HASBADGELIVE:%s != ISLIVE:%s "%(islive,hasbadgelive))
-            if islive:info.badges.append("LIVE")
-            """
-            nostable=False
-            err=None
-            if islive!=islive2:
-                #mypkg.open_data(data)
-                #assert 0
-                err="ISLIVE OR NOT ISLIVE: %s != %s"%(islive,islive2)
-                nostable=True
-                if islive2:islive=islive2
-            """
+        #with utils-Info(self) as info:
+        point=data["navigationEndpoint"]
+        xpoint=Constant(point,"point")
+        try:
+            self.badges=getBadges(data.get("badges"),"label")
+        except:
+            #mypkg.open_data(data)
+            assert 0
+        hasbadgelive="LIVE" in self.badges
+        islive=tuple(data.get("thumbnailOverlays",[{}])[0].keys())==("thumbnailOverlayToggleButtonRenderer",)
+        self.islive=hasbadgelive or islive
+        self.hasbadgelive=hasbadgelive
+        err=None
+        if hasbadgelive and not islive:
+            print("HASBADGELIVE:%s != ISLIVE:%s "%(islive,hasbadgelive))
+        if islive:self.badges.append("LIVE")
+        """
+        nostable=False
+        err=None
+        if islive!=islive2:
             #mypkg.open_data(data)
             #assert 0
-            isShorts=None
-            if isChild:isShorts=False
-            else:
-                if not self.islive:
-
-                    timestatus=data["thumbnailOverlays"][0]["thumbnailOverlayTimeStatusRenderer"]
-
-
-                    for func in (lambda:timestatus["text"]["accessibility"]["accessibilityData"]["label"]=="Shorts",
-                                lambda:utils.getText(timestatus["text"])=="SHORTS",
-                                lambda:timestatus["style"]=="SHORTS"):
-                        b=func()
-                        #print(b)
-                        assert isShorts is None or b==isShorts
-                        isShorts=b
-            isExpectedShorts=False
-            try:utils.lambdas(data,xpoint["watchEndpoint"],errmode=None)
-            except:
-                #dddd
-                #print(isShorts)
-                isShorts=True
-                
-
-            self.isShorts=isShorts
-            
-            try:
-                #info.id=id=utils.lambdas(data,(x,xpoint["reelWatchEndpoint" if isShorts else "watchEndpoint"]),x["videoId"])
-                info.id=id=data["videoId"]
-            except:
-                rrprettier.tofile(data)
-                #mypkg.open_data(data)
-                assert 0
-
-            info.url=utils.Url(utils.lambdas(data,xpoint["commandMetadata"]\
-                            ["webCommandMetadata"]["url"],errmode="raise") or utils.YTWATCH+id)
-
-            """
-                print(lambdas(data,[xpoint["commandMetadata"]\
-                            ["webCommandMetadata"]["url"]]))
-            """
-
-
-            if err:
-                print(err+" url:%s"%info.url)
-            if not isChild:
-                info.thumbnails=utils.Thumbnails(data)
-            #mypkg.open_data(data)
-            info.title=cleantext.remove_emoji(utils.getText(data["title"]))
-            #assert 0
-            #assert 0
-            if not isChild:
-                
-                info.channel=getChannelInfo(data)
-            xLengthText=x["lengthText"]
+            err="ISLIVE OR NOT ISLIVE: %s != %s"%(islive,islive2)
+            nostable=True
+            if islive2:islive=islive2
+        """
+        #mypkg.open_data(data)
+        #assert 0
+        isShorts=None
+        if isChild:isShorts=False
+        else:
             if not self.islive:
-                info.duration=utils.Duration(utils.getText(utils.lambdas(data,([x["lengthText"]]+([] if isChild or isShorts else [x["thumbnailOverlays"][0]["thumbnailOverlayTimeStatusRenderer"]["text"]])))))
-            if not isChild and not fromPlaylist:
-                viewCountText=data.get("viewCountText")
-                info.viewCount=utils.ViewCount(utils.getText(viewCountText)) if viewCountText else "?"
-                #excexrpt:odata(data)
-                try:
-                    info.description=utils.getText(data["detailedMetadataSnippets"][0]["snippetText"])
-                except:
-                    info.description=None
+
+                timestatus=data["thumbnailOverlays"][0]["thumbnailOverlayTimeStatusRenderer"]
+
+
+                for func in (lambda:timestatus["text"]["accessibility"]["accessibilityData"]["label"]=="Shorts",
+                            lambda:utils.getText(timestatus["text"])=="SHORTS",
+                            lambda:timestatus["style"]=="SHORTS"):
+                    b=func()
+                    #print(b)
+                    assert isShorts is None or b==isShorts
+                    isShorts=b
+        isExpectedShorts=False
+        try:utils.lambdas(data,xpoint["watchEndpoint"],errmode=None)
+        except:
+            #dddd
+            #print(isShorts)
+            isShorts=True
+            
+
+        self.isShorts=isShorts
+        
+        try:
+            #info.id=id=utils.lambdas(data,(x,xpoint["reelWatchEndpoint" if isShorts else "watchEndpoint"]),x["videoId"])
+            self.id=id=data["videoId"]
+        except:
+            rrprettier.tofile(data)
+            #mypkg.open_data(data)
+            assert 0
+
+        self.url=utils.Url(utils.lambdas(data,xpoint["commandMetadata"]\
+                        ["webCommandMetadata"]["url"],errmode="raise") or utils.YTWATCH+id)
+
+        """
+            print(lambdas(data,[xpoint["commandMetadata"]\
+                        ["webCommandMetadata"]["url"]]))
+        """
+
+
+        if err:
+            print(err+" url:%s"%self.url)
+        if not isChild:
+            self.thumbnails=utils.Thumbnails(data)
+        #mypkg.open_data(data)
+        self.title=cleantext.remove_emoji(utils.getText(data["title"]))
+        #assert 0
+        #assert 0
+        if not isChild:
+            
+            self.channel=getChannelInfo(data)
+        xLengthText=x["lengthText"]
+        if not self.islive:
+            self.duration=utils.Duration(utils.getText(utils.lambdas(data,([x["lengthText"]]+([] if isChild or isShorts else [x["thumbnailOverlays"][0]["thumbnailOverlayTimeStatusRenderer"]["text"]])))))
+        if not isChild and not fromPlaylist:
+            viewCountText=data.get("viewCountText")
+            self.viewCount=utils.ViewCount(utils.getText(viewCountText)) if viewCountText else "?"
+            #excexrpt:odata(data)
+            try:
+                self.description=utils.getText(data["detailedMetadataSnippets"][0]["snippetText"])
+            except:
+                self.description=None
         self.owner = self.author = self.channel #pylint: disable=E1101:no-member
     def __repr__(self):
         return utils.reprWithCls("%s in %s"%(repr(self.title),self.url),utils.tname(self)+(" LIVE" if self.islive else "")) #pylint: disable=E1101:no-member
@@ -236,27 +236,27 @@ class MovieR(VideoR):pass
 
 class ChannelR:
     def __init__(self,data):
-        with utils.Info(self) as info:
-            info.id=utils.lambdas(data,(x["channelId"],x["navigationEndpoint"]["browseEndpoint"]["browseId"]))
-            info.name=utils.getText(data["title"])
+        #with utils-Info(self) as info:
+        self.id=utils.lambdas(data,(x["channelId"],x["navigationEndpoint"]["browseEndpoint"]["browseId"]))
+        self.name=utils.getText(data["title"])
 
-            info.url=utils.Url(utils.lambdas(data["navigationEndpoint"],(x["commandMetadata"]["webCommandMetadata"]["url"],x["browseEndpoint"]["canonicalBaseUrl"])))
-            #open_json(data)
-            channel=getChannelInfo(data,isChannel=True)
+        self.url=utils.Url(utils.lambdas(data["navigationEndpoint"],(x["commandMetadata"]["webCommandMetadata"]["url"],x["browseEndpoint"]["canonicalBaseUrl"])))
+        #open_json(data)
+        channel=getChannelInfo(data,isChannel=True)
 
-            assert info.id==channel.id #pylint: disable=E1101:no-member
-            assert info.name==channel.name #pylint: disable=E1101:no-member
-            info.badges=channel.badges #pylint: disable=E1101:no-member
-            info.description=utils.getText(data["descriptionSnippet"])
-            #print(data)
-            count=utils.getText(data["videoCountText"])
-            if "subscribers" in count:
-                info.subscriberCount=0 if "No" in count else utils.viewcount(count)
-            else:assert 0
-                #info.videoCount=viewcount(getText(data["videoCountText"])[:-7])
-            pseudo=utils.getText(data["subscriberCountText"])
-            assert "@" in pseudo
-            info.pseudo=pseudo
+        assert self.id==channel.id #pylint: disable=E1101:no-member
+        assert self.name==channel.name #pylint: disable=E1101:no-member
+        self.badges=channel.badges #pylint: disable=E1101:no-member
+        self.description=utils.getText(data["descriptionSnippet"])
+        #print(data)
+        count=utils.getText(data["videoCountText"])
+        if "subscribers" in count:
+            self.subscriberCount=0 if "No" in count else utils.viewcount(count)
+        else:assert 0
+            #info.videoCount=viewcount(getText(data["videoCountText"])[:-7])
+        pseudo=utils.getText(data["subscriberCountText"])
+        assert "@" in pseudo
+        self.pseudo=pseudo
 
     def __repr__(self):
         return utils.reprWithCls("%s in %s"%(repr(self.name),self.url),self) #pylint: disable=E1101:no-member
@@ -266,13 +266,13 @@ class Channel(ListR):
         contents=data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
         content=contents[0]["tabRenderer"]
         xcontent=Constant(content,"content")
-        with utils.Info(self) as info:
-            info.name="UNDEFINED NAME"
-            info.url=utils.Url(utils.lambdas(data,(xcontent["endpoint"]["commandMetadata"]["webCommandMetadata"]["url"],
-                                xcontent["endpoint"]["browseEndpoint"]["canonicalBaseUrl"]),lambda x:x[:-9] if x.endswith("/featured") else x)
-                        )
-            
-            info.video=ChannelPlayerVideoR(content["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["channelVideoPlayerRenderer"])
+        #with utils-Info(self) as info:
+        self.name="UNDEFINED NAME"
+        self.url=utils.Url(utils.lambdas(data,(xcontent["endpoint"]["commandMetadata"]["webCommandMetadata"]["url"],
+                            xcontent["endpoint"]["browseEndpoint"]["canonicalBaseUrl"]),lambda x:x[:-9] if x.endswith("/featured") else x)
+                    )
+        
+        self.video=ChannelPlayerVideoR(content["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["channelVideoPlayerRenderer"])
         
     @classmethod
     def get(cls,url):
@@ -280,15 +280,15 @@ class Channel(ListR):
     
 class ChannelPlayerVideoR:
     def __init__(self,data):
-        with utils.Info(self) as info:
-            run=data["title"]["runs"][0]
-            xrun=Constant(run,"run")
-            info.id=utils.lambdas(data,(x,xrun["navigationEndpoint"]["watchEndpoint"]),x["videoId"])
-            info.title=run["text"]
-            info.url=utils.Url(run["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
-            info.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
-            info.viewCount=utils.ViewCount(utils.getText(data["viewCountText"]))
-            info.publishedTime=utils.getText(data["publishedTimeText"])
+        #with utils-Info(self) as info:
+        run=data["title"]["runs"][0]
+        xrun=Constant(run,"run")
+        self.id=utils.lambdas(data,(x,xrun["navigationEndpoint"]["watchEndpoint"]),x["videoId"])
+        self.title=run["text"]
+        self.url=utils.Url(run["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
+        self.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
+        self.viewCount=utils.ViewCount(utils.getText(data["viewCountText"]))
+        self.publishedTime=utils.getText(data["publishedTimeText"])
     def __repr__(self):
         return utils.reprWithCls("%s in %s"%(repr(self.title),self.url),self) #pylint: disable=E1101:no-member
     

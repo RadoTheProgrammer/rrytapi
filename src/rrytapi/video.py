@@ -24,40 +24,41 @@ class Video:
         xmicroformat=Constant(microformat,"microformat")
         
 
-        with utils.Info(self) as info:
-            info.id=details["videoId"]
-            info.url=utils.Url(utils.YTWATCH+info.id)
-            #open_json(details)
-            info.islive=utils.lambdas(data,(x["responseContext"]["serviceTrackingParams"][0]["params"][0]["value"]=="True",
-                                      Constant(bool)(x["playabilityStatus"].get("liveStreamability")),
-                                      xdetails["isLiveContent"]))
-            #odata(data)
-            info.title=cleantext.remove_emoji(utils.lambdas(data,(xdetails,(xmicroformat,utils.getText)),x["title"]))
-            l=utils.lambdas(data,(xdetails,xmicroformat),Constant(int)(x["lengthSeconds"]),funcVerifIfSame=lambda x,y:abs(x-y)<2)
-            #print(l)
-            info.duration=utils.Duration(l)
-            #print(info.lengthSeconds)
-            #print(Duration(l))
-            #print(type(info.lengthSeconds))
-            keywords=details.get("keywords",[])
-            #odata(data)
-            info.keywords=utils.MiniDisplay.withL(keywords,"keywords")
-            info.thumbnails=utils.MiniDisplay.withL(utils.Thumbnails(details,microformat),"thumbnails")
-            info.viewCount=utils.ViewCount(utils.lambdas(data,(xdetails,xmicroformat),x["viewCount"]))
-            info.channel=utils.ChannelInfo(utils.lambdas(data,(xdetails["author"],xmicroformat["ownerChannelName"])),
-                               utils.lambdas(data,(xdetails["channelId"],xmicroformat["externalChannelId"])),
-                               microformat["ownerProfileUrl"])
-            info.export()
-            #ti.print("player...")
-            self.player=player.Player.fromVideo(webpage)
-            #ti.print("played...")
-            formats=videoformats.Formats()
-            #ti.print("formated")
-            for fmt in streaming.get("formats",[])+streaming.get("adaptiveFormats",[]):
-                #ti.print("new format")
-                formats.append(self.Format(fmt))
-            #ti.print("f1")
-            info.formats=utils.MiniDisplay.withL(formats,"formats")
+        #with utils-Info(self) as info:
+        self.id=details["videoId"]
+        self.url=utils.Url(utils.YTWATCH+self.id)
+        #open_json(details)
+        self.islive=utils.lambdas(data,(x["responseContext"]["serviceTrackingParams"][0]["params"][0]["value"]=="True",
+                                    Constant(bool)(x["playabilityStatus"].get("liveStreamability")),
+                                    xdetails["isLiveContent"]))
+        #odata(data)
+        self.title=cleantext.remove_emoji(utils.lambdas(data,(xdetails,(xmicroformat,utils.getText)),x["title"]))
+        l=utils.lambdas(data,(xdetails,xmicroformat),Constant(int)(x["lengthSeconds"]),funcVerifIfSame=lambda x,y:abs(x-y)<2)
+        #print(l)
+        self.duration=utils.Duration(l)
+        #print(info.lengthSeconds)
+        #print(Duration(l))
+        #print(type(info.lengthSeconds))
+        keywords=details.get("keywords",[])
+        #odata(data)
+        self.keywords=utils.MiniDisplay.withL(keywords,"keywords")
+        self.thumbnails=utils.MiniDisplay.withL(utils.Thumbnails(details,microformat),"thumbnails")
+        self.viewCount=utils.ViewCount(utils.lambdas(data,(xdetails,xmicroformat),x["viewCount"]))
+        self.channel=utils.ChannelInfo(utils.lambdas(data,(xdetails["author"],xmicroformat["ownerChannelName"])),
+                            utils.lambdas(data,(xdetails["channelId"],xmicroformat["externalChannelId"])),
+                            microformat["ownerProfileUrl"])
+        #self.description=utils.MiniDisplay(utils.lambdas(data,(xdetails["shortDescription"],xmicroformat["description"])))
+        #TODO: see if this of github copilot work
+        #ti.print("player...")
+        self.player=player.Player.fromVideo(webpage)
+        #ti.print("played...")
+        formats=videoformats.Formats()
+        #ti.print("formated")
+        for fmt in streaming.get("formats",[])+streaming.get("adaptiveFormats",[]):
+            #ti.print("new format")
+            formats.append(self.Format(fmt))
+        #ti.print("f1")
+        self.formats=utils.MiniDisplay.withL(formats,"formats")
             #ti.print("ff")
         self.videoId=self.id #pylint: disable=E1101:no-member
         self.videoUrl=self.url #pylint: disable=E1101:no-member

@@ -26,65 +26,65 @@ class Format(utils.Url):
     def __init__(self,video,fmtData):
         self.video=video
         #ti.print("HELLO")
-        with utils.Info(self) as info:
-            info.itag=int(fmtData["itag"])
-            #print("Format %s"%info.itag)
-            self._fmtData=fmtData
-            protected=False
-            #print("VVVVV%s"%self.video.url)
-            try:
-                self.url=fmtData["url"]
-            except:
-                #print("decrypt...")
-                protected=True
-                self.url=video.player.decryptSigWithParams(fmtData["signatureCipher"])
-            #print(protected)
-            #print(self.url)
-            info.protected=protected
+        #with utils-Info(self) as info:
+        self.itag=int(fmtData["itag"])
+        #print("Format %s"%info.itag)
+        self._fmtData=fmtData
+        protected=False
+        #print("VVVVV%s"%self.video.url)
+        try:
+            self.url=fmtData["url"]
+        except AttributeError as _err:
+            #print("decrypt...")
+            protected=True
+            self.url=video.player.decryptSigWithParams(fmtData["signatureCipher"])
+        #print(protected)
+        #print(self.url)
+        self.protected=protected
+        
+        #webbrowser.open(self.url)
+        #print(self.url)
+        #assert 0
+        #print(fmtData["mimeType"])
+
+        self.mimeType,self.codecs=fmtData["mimeType"].split("; codecs=")
+        self.codecs=eval(self.codecs) #pylint: disable=W0123:eval-used
+        self.extension=mimetypes.guess_extension(self.mimeType)
+        #self.videoOrAudio=info.mimeType.videoOrAudio
+        self.bitrate=utils.Bitrate(fmtData["bitrate"])
+        contentLength=fmtData.get("contentLength")
+        self.contentLength=utils.BytesCount(contentLength) if contentLength else None
+        #ti.print("getting content length")
+        #contentLength=self.getContentLength()
+        #ti.print("getted content length")
+            #odata(self.video._data)
+        #if info.contentLength and contentLength!=info.contentLength:
+        #        print("Not same contentLength: %s != %s"%(contentLength,info.contentLength),file=sys.stderr)
+        self.hasAudio=False
+        sampleRate=fmtData.get("audioSampleRate")
+        if sampleRate:
+            self.hasAudio=True
+            audioQuality=AudioQuality(fmtData["audioQuality"],sampleRate)
+        #ti.print("MIDDLE")
+        self.export()
+        if "video" in self.mimeType: #pylint: disable=E1101:no-member
+            self.size=utils.Size(fmtData["width"],fmtData["height"])
+
+            self.videoQuality=VideoQuality(fmtData["quality"],fmtData["qualityLabel"])
+            self.videoQualityType=self.qualityType=self.videoQuality.qualityType
+            self.width=self.size.width
+            self.height=self.size.height
+            self.pixels=self.qualityPixels=self.videoQuality.qualityPixels
+            self.qualityLabel=self.videoQuality.qualityLabel
+            self.qualityType=self.videoQuality.qualityType
+            self.fps=self.videoQuality.fps
             
-            #webbrowser.open(self.url)
-            #print(self.url)
-            #assert 0
-            #print(fmtData["mimeType"])
-
-            info.mimeType,self.codecs=fmtData["mimeType"].split("; codecs=")
-            self.codecs=eval(self.codecs)
-            info.extension=mimetypes.guess_extension(info.mimeType)
-            #self.videoOrAudio=info.mimeType.videoOrAudio
-            info.bitrate=utils.Bitrate(fmtData["bitrate"])
-            contentLength=fmtData.get("contentLength")
-            info.contentLength=utils.BytesCount(contentLength) if contentLength else None
-            #ti.print("getting content length")
-            #contentLength=self.getContentLength()
-            #ti.print("getted content length")
-                #odata(self.video._data)
-            #if info.contentLength and contentLength!=info.contentLength:
-            #        print("Not same contentLength: %s != %s"%(contentLength,info.contentLength),file=sys.stderr)
-            info.hasAudio=False
-            sampleRate=fmtData.get("audioSampleRate")
-            if sampleRate:
-                info.hasAudio=True
-                audioQuality=AudioQuality(fmtData["audioQuality"],sampleRate)
-            #ti.print("MIDDLE")
-            info.export()
-            if "video" in self.mimeType: #pylint: disable=E1101:no-member
-                info.size=utils.Size(fmtData["width"],fmtData["height"])
-
-                info.videoQuality=VideoQuality(fmtData["quality"],fmtData["qualityLabel"])
-                self.videoQualityType=self.qualityType=info.videoQuality.qualityType
-                self.width=info.size.width
-                self.height=info.size.height
-                self.pixels=self.qualityPixels=info.videoQuality.qualityPixels
-                self.qualityLabel=info.videoQuality.qualityLabel
-                self.qualityType=info.videoQuality.qualityType
-                self.fps=info.videoQuality.fps
-                
-            if info.hasAudio:
-                info.audioQuality=AudioQuality(fmtData["audioQuality"],sampleRate)
-                self.sampleRate=info.audioQuality.sampleRate
-                self.audioQualityType=info.audioQuality.qualityType
-            self.type=info.mimeType
-            self.id=info.itag
+        if self.hasAudio:
+            self.audioQuality=AudioQuality(fmtData["audioQuality"],sampleRate)
+            self.sampleRate=self.audioQuality.sampleRate
+            self.audioQualityType=self.audioQuality.qualityType
+        self.type=self.mimeType
+        self.id=self.itag
         #ti.print("BYE")
             #info.hasAudio=displaySetLen(hasAudio,5)
             #info.audioQuality=displaySetLen(audioQuality,16)
