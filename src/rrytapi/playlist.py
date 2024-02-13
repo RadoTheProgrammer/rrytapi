@@ -21,7 +21,7 @@ class Playlist(list):
             )
             #videos.append(video)
             idx+=1
-        self.videos=utils.MiniDisplay.withL(self,"videos")
+        #self.videos=utils.MiniDisplay.withL(self,"videos")
         header=data["header"]["playlistHeaderRenderer"]
         #ajson(header)
         xheader=Constant(header,"header")
@@ -50,10 +50,12 @@ class Playlist(list):
                                     xmicroformat["title"]))
         self.videosNumber=int(utils.getText(utils.lambdas(data,(xheader["numVideosText"],xheader["stats"][0]))).partition(" ")[0])
         description=utils.lambdas(data,(Constant(utils.getText)(xheader["descriptionText"]),xmetadata["description"]))
-        self.description=utils.MiniDisplay(description,microformat["description"])
+        #self.description=utils.MiniDisplay(description,microformat["description"])
+        self.description=microformat["description"]
         self.channel=searcher.getChannelInfo(header)
         self.viewCount=utils.ViewCount(utils.getText(utils.lambdas(data,(xheader["viewCountText"],xheader["stats"][1]))))
-        self.thumbnails=utils.MiniDisplay.withL(utils.Thumbnails(microformat),"thumbnails")
+        #self.thumbnails=utils.MiniDisplay.withL(utils.Thumbnails(microformat),"thumbnails")
+        self.thumbnails=utils.Thumbnails(microformat)
     @classmethod
     def get(cls,url):
         url=utils.YTPLAYLIST+utils.getPlaylistId(url)

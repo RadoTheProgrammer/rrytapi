@@ -41,8 +41,10 @@ class Video:
         #print(type(info.lengthSeconds))
         keywords=details.get("keywords",[])
         #odata(data)
-        self.keywords=utils.MiniDisplay.withL(keywords,"keywords")
-        self.thumbnails=utils.MiniDisplay.withL(utils.Thumbnails(details,microformat),"thumbnails")
+        #self.keywords=utils.MiniDisplay.withL(keywords,"keywords")
+        self.keywords=keywords
+        #self.thumbnails=utils.MiniDisplay.withL(utils.Thumbnails(details,microformat),"thumbnails")
+        self.thumbnails=utils.Thumbnails(details,microformat)
         self.viewCount=utils.ViewCount(utils.lambdas(data,(xdetails,xmicroformat),x["viewCount"]))
         self.channel=utils.ChannelInfo(utils.lambdas(data,(xdetails["author"],xmicroformat["ownerChannelName"])),
                             utils.lambdas(data,(xdetails["channelId"],xmicroformat["externalChannelId"])),
@@ -58,7 +60,8 @@ class Video:
             #ti.print("new format")
             formats.append(self.Format(fmt))
         #ti.print("f1")
-        self.formats=utils.MiniDisplay.withL(formats,"formats")
+        #self.formats=utils.MiniDisplay.withL(formats,"formats")
+        self.formats=formats
             #ti.print("ff")
         self.videoId=self.id #pylint: disable=E1101:no-member
         self.videoUrl=self.url #pylint: disable=E1101:no-member

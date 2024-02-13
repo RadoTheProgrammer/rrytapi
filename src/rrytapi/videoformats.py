@@ -34,7 +34,7 @@ class Format(utils.Url):
         #print("VVVVV%s"%self.video.url)
         try:
             self.url=fmtData["url"]
-        except AttributeError as _err:
+        except KeyError as _err:
             #print("decrypt...")
             protected=True
             self.url=video.player.decryptSigWithParams(fmtData["signatureCipher"])
@@ -66,7 +66,7 @@ class Format(utils.Url):
             self.hasAudio=True
             audioQuality=AudioQuality(fmtData["audioQuality"],sampleRate)
         #ti.print("MIDDLE")
-        self.export()
+        
         if "video" in self.mimeType: #pylint: disable=E1101:no-member
             self.size=utils.Size(fmtData["width"],fmtData["height"])
 

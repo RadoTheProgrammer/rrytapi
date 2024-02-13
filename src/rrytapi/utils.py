@@ -139,42 +139,42 @@ def reprWithCls(string,cls):
 def printerWithCls(data,cls):
     return reprWithCls("\n"+rrprettier.prettify(data),cls)
 
-class MiniDisplay:
+# class MiniDisplay:
 
-    def __init__(self,obj,display):
-        self.obj=obj
-        self.display=display
-    def __repr__(self):return self.display
-    @classmethod
-    def withL(cls,obj,name):
-        return cls(obj,"<%s %s>"%(len(obj),name))
-    @classmethod
-    def firstChars(cls,obj,l=100):
-        return cls(obj,repr(obj[:l]+"..."))
+#     def __init__(self,obj,display):
+#         self.obj=obj
+#         self.display=display
+#     def __repr__(self):return self.display
+#     @classmethod
+#     def withL(cls,obj,name):
+#         return cls(obj,"<%s %s>"%(len(obj),name))
+#     @classmethod
+#     def firstChars(cls,obj,l=100):
+#         return cls(obj,repr(obj[:l]+"..."))
     
-class Info(dict):
-    def __init__(self,dst):
-        object.__setattr__(self,"dst",dst)
-        #self.dst=dst
-        self.dst.info=self 
-        super().__init__()
-    def __enter__(self):return self
-    def export(self):
-        #if error:raise error
-        for name,value in self.items():
-            if type(value)==MiniDisplay:
-                value=value.obj
-            setattr(self.dst,name,value)
-    def __exit__(self,_type,err,tb):
-        self.export()
-    def __repr__(self):
-        return rrprettier.prettify(dict(self))
-    def __getitem__(self,key):
-        value=super().__getitem__(key)
-        return value.obj if type(value)==MiniDisplay else value
+# class Info(dict):
+#     def __init__(self,dst):
+#         object.__setattr__(self,"dst",dst)
+#         #self.dst=dst
+#         self.dst.info=self 
+#         super().__init__()
+#     def __enter__(self):return self
+#     def export(self):
+#         #if error:raise error
+#         for name,value in self.items():
+#             if type(value)==MiniDisplay:
+#                 value=value.obj
+#             setattr(self.dst,name,value)
+#     def __exit__(self,_type,err,tb):
+#         self.export()
+#     def __repr__(self):
+#         return rrprettier.prettify(dict(self))
+#     def __getitem__(self,key):
+#         value=super().__getitem__(key)
+#         return value.obj if type(value)==MiniDisplay else value
     
-    __setattr__=dict.__setitem__
-    __getattr__=__getitem__
+#     __setattr__=dict.__setitem__
+#     __getattr__=__getitem__
 
 
 
@@ -375,13 +375,13 @@ class Size:
     
 class ChannelInfo:
     def __init__(self,name,id,url,thumbnails=None,badges=[]):
-        with Info(self) as info:
-            info.name=name
-            info.id=id
-            info.url=Url(url)
-            if thumbnails:
-                if type(thumbnails)!=Thumbnails:info.thumbnails=Thumbnails(thumbnails,name="channel %s"%name)
-            info.badges=badges
+        #with utils-Info(self) as info:
+        self.name=name
+        self.id=id
+        self.url=Url(url)
+        if thumbnails:
+            if type(thumbnails)!=Thumbnails:self.thumbnails=Thumbnails(thumbnails,name="channel %s"%name)
+        self.badges=badges
     def __repr__(self):
         return reprWithCls(repr(self.name),self) #pylint: disable=E1101:no-member
 

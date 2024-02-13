@@ -118,7 +118,8 @@ class AdR:
         #with utils-Info(self) as info:
         self.thumbnails=utils.Thumbnails(data)
         self.title=utils.getText(data["title"])
-        self.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
+        #self.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
+        self.description=utils.getText(data["description"])
         self.website=utils.getText(data["websiteText"])
         point=data["navigationEndpoint"]
         xpoint=Constant(point,"point")
@@ -286,7 +287,8 @@ class ChannelPlayerVideoR:
         self.id=utils.lambdas(data,(x,xrun["navigationEndpoint"]["watchEndpoint"]),x["videoId"])
         self.title=run["text"]
         self.url=utils.Url(run["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
-        self.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
+        #self.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
+        self.description=utils.getText(data["description"])
         self.viewCount=utils.ViewCount(utils.getText(data["viewCountText"]))
         self.publishedTime=utils.getText(data["publishedTimeText"])
     def __repr__(self):
