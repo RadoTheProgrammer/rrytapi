@@ -29,12 +29,12 @@ def indexp(string,find,indexstart=0):
 #sss
 class Player:
     playersName="players"
-    playersDirectory=os.path.dirname(__file__)+"/"+playersName
+    playersDirectory=os.path.join(os.path.dirname(__file__),playersName)
     try:os.mkdir(playersDirectory)
     except FileExistsError:pass
     currentPlayerName="currentPlayer"
-    currentPyPlayerFile=playersDirectory+"/%s.py"%currentPlayerName
-    currentJsPlayerFile=playersDirectory+"/%s.js"%currentPlayerName
+    currentPyPlayerFile=os.path.join(playersDirectory,f"{currentPlayerName}.py")
+    currentJsPlayerFile=os.path.join(playersDirectory,f"{currentPlayerName}.js")
     def __init__(self,playerUrl,playerId=None):
         self.playerUrl=playerUrl
         self._playerId=playerId
@@ -46,7 +46,7 @@ class Player:
     def pyPlayerFile(self):
         return self.playerFile(ext="py")
     def playerFile(self,ext):
-        return self.playersDirectory+"/"+self.varname+"."+ext
+        return os.path.join(self.playersDirectory,self.varname+"."+ext)
     @property
     def varname(self):
         return "player_%s"%self.playerId
@@ -57,8 +57,8 @@ class Player:
         if "/" not in self.playerUrl:return self.playerUrl
         try:
             i=indexp(self.playerUrl,"/player/")
-        except:
-            raise ValueError("Cannot extract player id")
+        except Exception as err:
+            raise ValueError("Cannot extract player id") from err
         i2=self.playerUrl.index("/",i)
         return self.playerUrl[i:i2]
     def decryptSig(self,sig,forceExtractFunction=False,forceWritePyFunction=False,forceWriteJsFunction=False):
@@ -66,7 +66,7 @@ class Player:
             assert not forceExtractFunction
             self._decrypt
         except Exception as err:
-            print(err)
+            #print(err)
             self.extractFunction(forceWritePyFunction,forceWriteJsFunction)
         return self._decrypt(sig)
     def decryptSigWithParams(self,params,forceExtractFunction=False,forceWritePyFunction=False,forceWriteJsFunction=False,ti=None):
@@ -81,9 +81,9 @@ class Player:
         if forceWritePyFunction or not os.path.exists(self.pyPlayerFile):
             self.writePyFunction(forceWriteJsFunction)
         #print(".%s.%s"%(self.playersName,self.varname))
-        print("rrytapi.%s.%s"%(self.playersName,self.varname))
-        module=__import__("rrytapi.%s.%s"%(self.playersName,self.varname))
-        print(module)
+        #print("rrytapi.%s.%s"%(self.playersName,self.varname))
+        #module=__import__("rrytapi.%s.%s"%(self.playersName,self.varname))
+        #print(module)
         playerModule=getattr(__import__("rrytapi.%s.%s"%(self.playersName,self.varname)),self.playersName)
         decrypt=getattr(getattr(playerModule,self.varname),self.varname).decrypt
         self._decrypt=decrypt
@@ -236,10 +236,10 @@ player=Player("4583e272")
 func=player.extractFunction(True,True)
 #func=extractFunction("https://www.youtube.com/s/player/4583e272/player_ias.vflset/en_US/base.js")
 """
-if __name__=="__main__":
+# if __name__=="__main__":
     
-    player=Player("4583e272")
-    sig=player.decryptSig("AG3C_xAwRAIgQwiScAQY7_HK7vyDFYn9DaFXUYiZ6fw4skorbq6hYnkCI\
-BAN2hbpcqsFzvFyxnTgR55s9xL4l3MqWVL8-6hySp5L&sig=AOq0QJ8wRQIhAPP93yzpxnPk-vGuKZMYGKxFq6OedDxT6vsTUrxAptBiAiB3p6Vj_ekYPvrbqc1aMdb1LUQlatLNMZTc13LmgCaO2g%3D%3Du",
-                          True,True,True)
+#     player=Player("4583e272")
+#     sig=player.decryptSig("AG3C_xAwRAIgQwiScAQY7_HK7vyDFYn9DaFXUYiZ6fw4skorbq6hYnkCI\
+# BAN2hbpcqsFzvFyxnTgR55s9xL4l3MqWVL8-6hySp5L&sig=AOq0QJ8wRQIhAPP93yzpxnPk-vGuKZMYGKxFq6OedDxT6vsTUrxAptBiAiB3p6Vj_ekYPvrbqc1aMdb1LUQlatLNMZTc13LmgCaO2g%3D%3Du",
+#                           True,True,True)
     
