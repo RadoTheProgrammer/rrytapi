@@ -89,7 +89,8 @@ class Format(utils.Url):
             #info.hasAudio=displaySetLen(hasAudio,5)
             #info.audioQuality=displaySetLen(audioQuality,16)
             #super().__init__(self.url,os.path.join(DLDIR,"{fmt.video.id} - {onlyalpha(fmt.video.title)} {fmt.videoOrAudio}#{fmt.itag}.{fmt.extension}"))
-    def __repr__(self):return utils.reprWithCls(str(dict(self.info)),self) #pylint: disable=E1101:no-member
+    def __repr__(self):
+        return utils.reprWithCls(dict(utils.get_info(self)),self) #pylint: disable=E1101:no-member
 
     def download(self,fileDest="rrytapi_downloads/{utils.to_filename(self.video.title)}_{self.itag}{self.extension}",resume=True,printInfo=True,showInExplorerBool=True,chunk_size=8192,waitIntervalToPrint=1):
 
@@ -175,6 +176,7 @@ class Format(utils.Url):
         #r=requests.get(str(self),stream=True)
         prt("Downloaded")
         return fileDest
+    _to_exclude=("url","video")
 
 
 

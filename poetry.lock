@@ -414,24 +414,6 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
-name = "rrprettier"
-version = "0.1.0"
-description = "My awesome Python project"
-optional = false
-python-versions = "^3.11"
-files = []
-develop = false
-
-[package.dependencies]
-pandas = "*"
-
-[package.source]
-type = "git"
-url = "https://github.com/RadoTheProgrammer/rrprettier"
-reference = "HEAD"
-resolved_reference = "508ddaa6b223a4e16fbe88b89599e908063028e5"
-
-[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
