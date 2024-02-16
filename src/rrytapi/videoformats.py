@@ -33,11 +33,11 @@ class Format(utils.Url):
         protected=False
         #print("VVVVV%s"%self.video.url)
         try:
-            self.url=fmtData["url"]
+            self._url=fmtData["url"]
         except KeyError as _err:
             #print("decrypt...")
             protected=True
-            self.url=video.player.decryptSigWithParams(fmtData["signatureCipher"])
+            self._url=video._player.decryptSigWithParams(fmtData["signatureCipher"])
         #print(protected)
         #print(self.url)
         self.protected=protected

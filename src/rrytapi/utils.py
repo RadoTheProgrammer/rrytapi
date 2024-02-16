@@ -429,8 +429,9 @@ class Thumbnails(list):
 
 def get_info(self):
     to_exclude=self._to_exclude if hasattr(self,"_to_exclude") else () #pylint: disable=W0212:protected-access
+
     return rrprettier.dictp(
-        {attr:value for attr,value in vars(self).items() if not attr.startswith("_") or attr in to_exclude}
+        {attr:value for attr,value in vars(self).items() if not (attr.startswith("_") or attr in to_exclude)}
     ) 
 
         

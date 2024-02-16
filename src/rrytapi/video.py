@@ -52,7 +52,7 @@ class Video:
         #self.description=utils.MiniDisplay(utils.lambdas(data,(xdetails["shortDescription"],xmicroformat["description"])))
         #TODO: see if this of github copilot work
         #ti.print("player...")
-        self.player=player.Player.fromVideo(webpage)
+        self._player=player.Player.fromVideo(webpage)
         #ti.print("played...")
         formats=videoformats.Formats()
         #ti.print("formated")
@@ -62,6 +62,7 @@ class Video:
         #ti.print("f1")
         #self.formats=utils.MiniDisplay.withL(formats,"formats")
         self.formats=formats
+        
             #ti.print("ff")
         self.videoId=self.id #pylint: disable=E1101:no-member
         self.videoUrl=self.url #pylint: disable=E1101:no-member
@@ -97,6 +98,6 @@ class Video:
             time.sleep(wait)
             #ti.print("FAIL")
         raise err
-    
+    _to_exclude=["download"]
 get_video=Video.get
 
