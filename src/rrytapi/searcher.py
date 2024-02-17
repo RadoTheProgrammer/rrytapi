@@ -2,7 +2,7 @@ import urllib
 
 from mini_lambda import x,Constant
 
-from . import utils
+from . import utils #pylint: disable=E0611:no-name-in-module
 from . import video
 import cleantext
 import rrprettier
@@ -113,7 +113,7 @@ class PlayListR(ListR):
         self.channel=getChannelInfo(data)
         super().__init__(data["videos"])
     def __repr__(self):
-        return utils.printerWithCls(list(self),"%s %s in %s"%(utils.tname(self),repr(self.title),self.url)) #pylint: disable=E1101:no-member
+        return utils.printerWithCls(list(self),"%s %s in %s"%(utils.tname(self),repr(self.title),self.url))
 class AdR:
     def __init__(self,data):
         #with utils-Info(self) as info:

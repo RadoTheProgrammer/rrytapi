@@ -58,14 +58,15 @@ class Video:
         #ti.print("formated")
         for fmt in streaming.get("formats",[])+streaming.get("adaptiveFormats",[]):
             #ti.print("new format")
-            formats.append(self.Format(fmt))
+            fmt=self.Format(fmt)
+            formats[fmt.id]=fmt
         #ti.print("f1")
         #self.formats=utils.MiniDisplay.withL(formats,"formats")
         self.formats=formats
         
             #ti.print("ff")
 
-        self.download=self.formats.download #pylint: disable=E1101:no-member
+        
         #print(self.title)
     owner=property(lambda self:self.channel)
     author=property(lambda self:self.channel)
