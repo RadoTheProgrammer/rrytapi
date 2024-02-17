@@ -33,7 +33,7 @@ class Playlist(list):
                                 xheader["serviceEndpoints"][0]["playlistEditEndpoint"]["actions"][0]["sourcePlaylistId"]))
         # xbutton=x["button"]["buttonRenderer"]["navigationEndpoint"]["signInEndpoint"]["nextEndpoint"]\
         #                      ["commendMetadata"]["webCommandMetadata"]
-        self.url=utils.Url(utils.lambdas(data,(xheader["saveButton"]["toggleButtonRenderer"]["defaultNavigationEndpoint"]\
+        self.url=utils.to_yturl(utils.lambdas(data,(xheader["saveButton"]["toggleButtonRenderer"]["defaultNavigationEndpoint"]\
                                 ["modalEndpoint"]["modal"]["modalWithTitleAndButtonRenderer"]["button"]\
                                 ["buttonRenderer"]["navigationEndpoint"]["signInEndpoint"]["nextEndpoint"]\
                                 ["commandMetadata"]["webCommandMetadata"]["url"],
@@ -42,7 +42,7 @@ class Playlist(list):
                                     xmicroformat["linkAlternates"][0]["hrefUrl"],
                             
                                     ),
-                                utils.Url))
+                                utils.to_yturl))
         
         #info.videoId=header["playEndpoint"]["watchEndpoint"]["videoId"]
         #info.urlWithVideo=Url(lambdas(data,xheader["playEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]))

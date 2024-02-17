@@ -19,7 +19,7 @@ def showInExplorerFunc(file):
     #print(cmd)
     return subprocess.call(cmd,shell=True)
 
-class Format(utils.Url):
+class Format:
     size=videoQuality=videoQualityType=width=height=pixels\
     =qualityLabel=qualityType=fps=audioQuality=sampleRate=audioQualityType\
     =None
@@ -92,6 +92,9 @@ class Format(utils.Url):
     def __repr__(self):
         return utils.reprWithCls(dict(utils.get_info(self)),self) #pylint: disable=E1101:no-member
 
+
+         
+    
     def download(self,fileDest="rrytapi_downloads/{utils.to_filename(self.video.title)}_{self.itag}{self.extension}",resume=True,printInfo=True,showInExplorerBool=True,chunk_size=8192,waitIntervalToPrint=1):
 
         global show
@@ -117,7 +120,7 @@ class Format(utils.Url):
         #print(vars(self))
         #[K[download]  24.6% of 2.69MiB at  4.99KiB/s ETA 06:5
         #contentLength=tryexec(getContentLength)
-        contentLength=self.getContentLength()
+        contentLength=utils.getContentLength(self._url)
         
         """
         try:
@@ -155,7 +158,7 @@ class Format(utils.Url):
         #print("GO")
         #if not fileDest:raise ValueError("Please put the fileDest")
         tt=ftt=time.time()
-        with requests.get(self.url,stream=True,headers=headers) as res:
+        with requests.get(self._url,stream=True,headers=headers) as res:
             res.raise_for_status()
             #show()
             for chunk in res.iter_content(chunk_size=chunk_size):
@@ -176,7 +179,7 @@ class Format(utils.Url):
         #r=requests.get(str(self),stream=True)
         prt("Downloaded")
         return fileDest
-    _to_exclude=("url","video")
+    #_to_exclude=("url","video")
 
 
 

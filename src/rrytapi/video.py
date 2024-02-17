@@ -26,7 +26,7 @@ class Video:
 
         #with utils-Info(self) as info:
         self.id=details["videoId"]
-        self.url=utils.Url(utils.YTWATCH+self.id)
+        self.url=utils.YTWATCH+self.id
         #open_json(details)
         self.islive=utils.lambdas(data,(x["responseContext"]["serviceTrackingParams"][0]["params"][0]["value"]=="True",
                                     Constant(bool)(x["playabilityStatus"].get("liveStreamability")),

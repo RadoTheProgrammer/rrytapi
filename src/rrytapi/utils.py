@@ -73,6 +73,15 @@ def errToStr(err):
     return "%s: %s"%(type(err).__name__,", ".join(err.args))
 
 class LambdasError(Exception):pass
+def to_yturl(url):
+    if url.startswith("/"):url=YT+url
+    if url.startswith("http://"):
+        url="https"+url[4:]
+    if url.startswith("https://www."):
+        url="https://"+url[12:]
+    return url
+
+
 
 def lambdas(xValue,lambdasExpr,endFunc=None,errmode="raise",funcVerifIfSame=None):
     if not funcVerifIfSame:funcVerifIfSame=lambda x,y:x==y
@@ -179,61 +188,7 @@ def printerWithCls(data,cls):
 
 
 
-class Url:
 
-    def __init__(self,url):
-        url=str(url)
-        if url.startswith("/"):url=YT+url
-        if url.startswith("http://"):
-            url="https"+url[4:]
-        if url.startswith("https://www."):
-            url="https://"+url[12:]
-        self.url=url
-        #print(url)
-
-        
-
-        
-
-    def __repr__(self):
-        return "<Url %s>"%repr(self.url)
-    def __str__(self):
-        if type(self)==Url:
-            return self.url
-        return repr(self)
-    def __eq__(self,url):
-        return str(self)==str(url)
-    def getContentLength(self,tries=3,wait=1):
-        url=self.url
-        #print("TRY2")
-        #print(self)
-        err=None
-        for _ in range(tries):
-            try:
-                for _ in range(1):
-                    #print("TRY")
-                    #requests.get(url,stream=True)
-                    #print(url)
-                    #print("WW")
-                    #ti.print("request....")
-                    res=requests.head(url,timeout=10)
-                    #ti.print("requested")
-                    res.raise_for_status()
-                    headers=res.headers
-
-                    contentLength=BytesCount(headers['content-length'])
-                    assert contentLength
-                    return contentLength
-            except Exception as e: #pylint: disable=W0718:broad-exception-caught
-                #print("TOUT")
-                time.sleep(wait)
-                #print(self.url)
-                err=e
-
-        raise ContentLengthError("Cannot extract the contentLength") from err 
-
-    def wb_open(self):
-        webbrowser.open(str(self))
 
 def convert_audio(input_file,output_file="{input_file}.{ext or 'mp3'}",ext=None):
     from pydub import AudioSegment
@@ -303,7 +258,6 @@ class Bitrate(BitCount):
     
 
 
-class ContentLengthError(Exception):pass
 
 
 class Duration(int):
@@ -378,7 +332,7 @@ class ChannelInfo:
         #with utils-Info(self) as info:
         self.name=name
         self.id=id
-        self.url=Url(url)
+        self.url=to_yturl(url)
         if thumbnails:
             if type(thumbnails)!=Thumbnails:self.thumbnails=Thumbnails(thumbnails,name="channel %s"%name)
         self.badges=badges
@@ -387,7 +341,7 @@ class ChannelInfo:
 
 acceptLang={"Accept-Language": "en-US"}
 
-class Thumbnail(Url):
+class Thumbnail:
     def __init__(self,thData,name=""):
         try:
             self.size=Size(thData["width"],thData["height"])
@@ -395,7 +349,7 @@ class Thumbnail(Url):
         self.name=name
         self.width=self.size.width
         self.height=self.size.height
-        super().__init__(thData["url"])
+        self.url=to_yturl(thData["url"])
 
     def __repr__(self):
         return "<Thumbnail "+str(self.size)+">"
@@ -433,5 +387,29 @@ def get_info(self):
     return rrprettier.dictp(
         {attr:value for attr,value in vars(self).items() if not (attr.startswith("_") or attr in to_exclude)}
     ) 
+class ContentLengthError(Exception):pass
+def getContentLength(self,tries=3,wait=1):
 
-        
+    err=None
+    for _ in range(tries):
+        try:
+            for _ in range(1):
+                #print("TRY")
+                #requests.get(url,stream=True)
+                #print(url)
+                #print("WW")
+                #ti.print("request....")
+                res=requests.head(self._url,timeout=10)
+                #ti.print("requested")
+                res.raise_for_status()
+                headers=res.headers
+
+                contentLength=BytesCount(headers['content-length'])
+                assert contentLength
+                return contentLength
+        except Exception as e: #pylint: disable=W0718:broad-exception-caught
+            #print("TOUT")
+            time.sleep(wait)
+            #print(self.url)
+            err=e
+    raise ContentLengthError("Cannot extract the contentLength") from err

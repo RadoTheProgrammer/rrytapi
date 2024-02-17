@@ -106,8 +106,8 @@ class PlayListR(ListR):
         self.id=id=utils.lambdas(data,(x,x["navigationEndpoint"]["watchEndpoint"]),x["playlistId"])
         self.title=utils.getText(data["title"])
         self.thumbnails=[utils.Thumbnails(ths) for ths in data["thumbnails"]]
-        self.url=utils.Url(data["viewPlaylistText"]["runs"][0]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
-        self.urlWithVideo=utils.Url(data["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
+        self.url=utils.to_yturl(data["viewPlaylistText"]["runs"][0]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
+        self.urlWithVideo=utils.to_yturl(data["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
         self.videoId=data["navigationEndpoint"]["watchEndpoint"]["videoId"]
         self.channel=getChannelInfo(data)
         super().__init__(data["videos"])
@@ -195,7 +195,7 @@ class VideoR:
             #mypkg.open_data(data)
             assert 0
 
-        self.url=utils.Url(utils.lambdas(data,xpoint["commandMetadata"]\
+        self.url=utils.to_yturl(utils.lambdas(data,xpoint["commandMetadata"]\
                         ["webCommandMetadata"]["url"],errmode="raise") or utils.YTWATCH+id)
 
         """
@@ -241,7 +241,7 @@ class ChannelR:
         self.id=utils.lambdas(data,(x["channelId"],x["navigationEndpoint"]["browseEndpoint"]["browseId"]))
         self.name=utils.getText(data["title"])
 
-        self.url=utils.Url(utils.lambdas(data["navigationEndpoint"],(x["commandMetadata"]["webCommandMetadata"]["url"],x["browseEndpoint"]["canonicalBaseUrl"])))
+        self.url=utils.to_yturl(utils.lambdas(data["navigationEndpoint"],(x["commandMetadata"]["webCommandMetadata"]["url"],x["browseEndpoint"]["canonicalBaseUrl"])))
         #open_json(data)
         channel=getChannelInfo(data,isChannel=True)
 
@@ -269,7 +269,7 @@ class Channel(ListR):
         xcontent=Constant(content,"content")
         #with utils-Info(self) as info:
         self.name="UNDEFINED NAME"
-        self.url=utils.Url(utils.lambdas(data,(xcontent["endpoint"]["commandMetadata"]["webCommandMetadata"]["url"],
+        self.url=utils.to_yturl(utils.lambdas(data,(xcontent["endpoint"]["commandMetadata"]["webCommandMetadata"]["url"],
                             xcontent["endpoint"]["browseEndpoint"]["canonicalBaseUrl"]),lambda x:x[:-9] if x.endswith("/featured") else x)
                     )
         
@@ -286,7 +286,7 @@ class ChannelPlayerVideoR:
         xrun=Constant(run,"run")
         self.id=utils.lambdas(data,(x,xrun["navigationEndpoint"]["watchEndpoint"]),x["videoId"])
         self.title=run["text"]
-        self.url=utils.Url(run["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
+        self.url=utils.to_yturl(run["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"])
         #self.description=utils.MiniDisplay.firstChars(utils.getText(data["description"]))
         self.description=utils.getText(data["description"])
         self.viewCount=utils.ViewCount(utils.getText(data["viewCountText"]))
