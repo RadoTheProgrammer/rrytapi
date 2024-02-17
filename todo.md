@@ -1,4 +1,4 @@
-* [ ] search: remove this complex index, it should be dict
+* [X] search: remove this complex index, it should be dict
 * [ ] formats in dict, not list
 * [ ] engage more with pypi
 * [ ] interface api

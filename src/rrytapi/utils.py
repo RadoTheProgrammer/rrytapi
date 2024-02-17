@@ -399,7 +399,7 @@ def getContentLength(self,tries=3,wait=1):
                 #print(url)
                 #print("WW")
                 #ti.print("request....")
-                res=requests.head(self._url,timeout=10)
+                res=requests.head(self,timeout=10)
                 #ti.print("requested")
                 res.raise_for_status()
                 headers=res.headers

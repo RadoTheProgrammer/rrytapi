@@ -54,34 +54,35 @@ class ListR(list):
                     #odata(drenderer)
                 super().append(renderer)
     def __repr__(self):
-        return utils.printerWithCls(list(self),self)
-    def __getitem__(self,y):
-        if type(y)==slice:item,idxTarget=y.start,y.stop
-        else:item,idxTarget=y,0
-        assert item is not None
-        l=list(self)
-        if type(item)==int:return l.__getitem__(y)
-        idx=0
-        for el in l:
-            title=url=None
-            try:
-                title=el.title
-                url=el.url
-            except:pass
-            t=type(el)
-            good=False
-            if item in (t,t.__name__,title,url):
-                good=True
-            elif issubclass(t,ListR):
-                try:
-                    el=el[item]
-                    good=True
-                except KeyError:pass
-            if good:
-                if idx==idxTarget:
-                    return el
-                idx+=1
-        return {}[item]
+        return utils.printerWithCls({idx:el for idx,el in enumerate(self)},self)
+
+    # def __getitem__(self,y):
+    #     if type(y)==slice:item,idxTarget=y.start,y.stop
+    #     else:item,idxTarget=y,0
+    #     assert item is not None
+    #     l=list(self)
+    #     if type(item)==int:return l.__getitem__(y)
+    #     idx=0
+    #     for el in l:
+    #         title=url=None
+    #         try:
+    #             title=el.title
+    #             url=el.url
+    #         except:pass
+    #         t=type(el)
+    #         good=False
+    #         if item in (t,t.__name__,title,url):
+    #             good=True
+    #         elif issubclass(t,ListR):
+    #             try:
+    #                 el=el[item]
+    #                 good=True
+    #             except KeyError:pass
+    #         if good:
+    #             if idx==idxTarget:
+    #                 return el
+    #             idx+=1
+    #     return {}[item]
     
 class UnknownR:
     def __init__(self,key,value):
@@ -228,7 +229,7 @@ class VideoR:
                 self.description=None
         self.owner = self.author = self.channel #pylint: disable=E1101:no-member
     def __repr__(self):
-        return utils.reprWithCls("%s in %s"%(repr(self.title),self.url),utils.tname(self)+(" LIVE" if self.islive else "")) #pylint: disable=E1101:no-member
+        return utils.reprWithCls(repr(self.title),utils.tname(self)+(" LIVE" if self.islive else "")) #pylint: disable=E1101:no-member
     def get(self):
         return video.Video.get(self.url) #pylint: disable=E1101:no-member
 
