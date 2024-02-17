@@ -179,7 +179,8 @@ class Format:
         #r=requests.get(str(self),stream=True)
         prt("Downloaded")
         return fileDest
-    #_to_exclude=("url","video")
+
+    _to_exclude=("video")
 
 
 
@@ -275,6 +276,9 @@ class Formats(list):
 
     withoutAudio=property(lambda self:self.filtrer(lambda fmt:not fmt.hasAudio))
 
+    @property
+    def _mini_display(self):
+        return f"<{len(self)} formats>"
     #__getattr__=__getitem__
 
 

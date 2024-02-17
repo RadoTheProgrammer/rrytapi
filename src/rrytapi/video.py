@@ -64,12 +64,14 @@ class Video:
         self.formats=formats
         
             #ti.print("ff")
-        self.videoId=self.id #pylint: disable=E1101:no-member
-        self.videoUrl=self.url #pylint: disable=E1101:no-member
-        self.length=self.seconds=self.lengthSeconds=self.duration #pylint: disable=E1101:no-member
-        self.owner=self.author=self.channel #pylint: disable=E1101:no-member
+
         self.download=self.formats.download #pylint: disable=E1101:no-member
         #print(self.title)
+    owner=property(lambda self:self.channel)
+    author=property(lambda self:self.channel)
+    length=seconds=lengthSeconds=property(lambda self:self.duration)
+    videoId=property(lambda self:self.id)
+    videoUrl=property(lambda self:self.url)
     def __repr__(self):
         return utils.reprWithCls("%s in %s"%(repr(self.title),self.url),self) #pylint: disable=E1101:no-member
     def Format(self,fmtData):
@@ -85,7 +87,7 @@ class Video:
         url=utils.YTWATCH+utils.getVideoId(str(url))+"&bcptr=9999999999&has_verified=1"
         #ti.print("GETTING...")
         for _ in range(tries):
-            r=requests.get(url,headers=acceptLang)
+            r=requests.get(url,headers=acceptLang,timeout=10)
             #ti.print("requested")
             t=r.text
             #ti.print("texted")

@@ -6,3 +6,5 @@
 * [ ] simplify format repr
 * [ ] make that any access to .download() show format
 * [ ] experiment with symlink on windows
+* [ ] github copilot: make download() faster
+* [ ] try wget alternative
