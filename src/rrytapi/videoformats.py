@@ -91,9 +91,7 @@ class Format:
         audioinfo=""
         if self.hasAudio:
             audioinfo=f" {self.audioQuality}"
-        return utils.reprWithCls(
-            f"{self.mimeType} {self.bitrate}{videoinfo}{audioinfo}"
-            ,self)
+        return f"<Format#{self.itag} {self.mimeType} {self.bitrate}{videoinfo}{audioinfo}"
 
     id=property(lambda self:self.itag)
     type=property(lambda self:self.mimeType)
@@ -233,20 +231,19 @@ class AudioQuality:
         return str(self.sampleRate)+"Hz("+self.qualityType+")"
     
     type=property(lambda self:self.qualityType)
-class Formats(dict):
+class Formats(list):
     _fmt=None
 
     def __repr__(self):
         return rrprettier.prettify(self)
 
-
-
-
-
+    def __call__(self,itag):
+        for fmt in self:
+            if fmt.itag==itag:return fmt
     def filtrer(self,condition):
         #print("LA CONDITION")
 
-        return Formats({itag:fmt for itag,fmt in self.items() if condition(fmt)})
+        return Formats([fmt for fmt in self if condition(fmt)])
     #def download(self,url=defaultFileDest):
     #    url=defaultFileDest.format()
     @property

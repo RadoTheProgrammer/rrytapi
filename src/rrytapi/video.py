@@ -58,8 +58,7 @@ class Video:
         #ti.print("formated")
         for fmt in streaming.get("formats",[])+streaming.get("adaptiveFormats",[]):
             #ti.print("new format")
-            fmt=self.Format(fmt)
-            formats[fmt.id]=fmt
+            formats.append(self.Format(fmt))
         #ti.print("f1")
         #self.formats=utils.MiniDisplay.withL(formats,"formats")
         self.formats=formats

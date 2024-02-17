@@ -7,9 +7,9 @@ v=rrytapi.get_video("https://youtube.com/watch?v=QegcGsE9tYE")
 #v.formats.download()
 print(v.formats)
 
-fmt=v.formats[394]
-print(get_info(fmt))
-print(get_info(v.formats[160]))
+#fmt=v.formats[394]
+#print(get_info(fmt))
+print(get_info(v.formats(160)))
 # from the formats, i should only capture the minimal: mimeType, bitrate, hasAudio, size
 # example of a format output: <Format#18: video/mp4 352.7KBit/s, 640x360, 44100Hz (low)>
 # {
