@@ -6,7 +6,7 @@ from rrytapi.utils import TimeIt
 ti=TimeIt()
 
 v=rrytapi.get_video("https://www.youtube.com/watch?v=M-mtdN6R3bQ")
-url=v.formats.url
+url=v.formats._url
 
 ti.print("GET...")
 with requests.get(url,stream=True) as res:

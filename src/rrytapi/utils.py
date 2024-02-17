@@ -405,6 +405,7 @@ def getContentLength(self,tries=3,wait=1):
                 headers=res.headers
 
                 contentLength=BytesCount(headers['content-length'])
+                
                 assert contentLength
                 return contentLength
         except Exception as e: #pylint: disable=W0718:broad-exception-caught
