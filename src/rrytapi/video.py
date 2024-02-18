@@ -11,7 +11,12 @@ from . import videoformats
 
 
 acceptLang={"Accept-Language": "en-US"}
-
+def keyToSortFormats(fmt):
+    if fmt.isVideo:
+        return (1,fmt.pixels,fmt.bitrate)
+    assert fmt.isAudio
+    return (0,fmt.sampleRate,fmt.bitrate)
+    
 class Video:
     def __init__(self,webpage):
         data=self._data=utils.extractVar(webpage,"ytInitialPlayerResponse")
@@ -59,6 +64,7 @@ class Video:
         for fmt in streaming.get("formats",[])+streaming.get("adaptiveFormats",[]):
             #ti.print("new format")
             formats.append(self.Format(fmt))
+        formats.sort(key=keyToSortFormats,reverse=True)
         #ti.print("f1")
         #self.formats=utils.MiniDisplay.withL(formats,"formats")
         self.formats=formats
@@ -100,6 +106,7 @@ class Video:
             time.sleep(wait)
             #ti.print("FAIL")
         raise err
-    _to_exclude=["download"]
+    download=videoformats.Format.download
+    info=utils.infoprop
 get_video=Video.get
 

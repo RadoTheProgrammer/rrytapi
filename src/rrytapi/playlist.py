@@ -63,5 +63,5 @@ class Playlist(list):
         return cls(utils.extractVar(url,"ytInitialData"))
     def __repr__(self):
         return utils.printerWithCls(list(self),f"{utils.tname(self)} {repr(self.title)} in {self.url}") #pylint: disable=E1101:no-member
-    
+    info=utils.infoprop
 get_playlist=Playlist.get

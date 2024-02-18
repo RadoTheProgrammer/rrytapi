@@ -387,6 +387,8 @@ def get_info(self):
     return rrprettier.dictp(
         {attr:(value._mini_display if hasattr(value,"_mini_display") else value) for attr,value in vars(self).items() if not (attr.startswith("_") or attr in to_exclude)}
     ) 
+
+infoprop=property(get_info)
 class ContentLengthError(Exception):pass
 def getContentLength(self,tries=3,wait=1):
 

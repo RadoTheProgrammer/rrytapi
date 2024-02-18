@@ -55,6 +55,7 @@ class ListR(list):
                 super().append(renderer)
     def __repr__(self):
         return utils.printerWithCls({idx:el for idx,el in enumerate(self)},self)
+    
 
     # def __getitem__(self,y):
     #     if type(y)==slice:item,idxTarget=y.start,y.stop
@@ -91,6 +92,7 @@ class UnknownR:
         #ajson(value)
     def __repr__(self):
         return "<UnknownRenderer: %s>"%self.key
+    info=utils.infoprop
 class ShelfR(ListR):
     def __init__(self,data):
         self.title=utils.getText(data["title"])
@@ -99,7 +101,9 @@ class ShelfR(ListR):
         super().__init__((content.get("horizontalListRenderer") or content["verticalListRenderer"])["items"])
     def __repr__(self):
         return utils.printerWithCls(list(self),utils.tname(self)+" "+repr(self.title))
+    info=utils.infoprop
 class PlayListR(ListR):
+
     def __init__(self,data):
         #mypkg.open_data(data)
         
@@ -114,6 +118,7 @@ class PlayListR(ListR):
         super().__init__(data["videos"])
     def __repr__(self):
         return utils.printerWithCls(list(self),"%s %s in %s"%(utils.tname(self),repr(self.title),self.url))
+    info=utils.infoprop
 class AdR:
     def __init__(self,data):
         #with utils-Info(self) as info:
@@ -125,9 +130,9 @@ class AdR:
         point=data["navigationEndpoint"]
         xpoint=Constant(point,"point")
         self.url=utils.lambdas(data,(xpoint["commandMetadata"]["webCommandMetadata"],xpoint["urlEndpoint"]),x["url"])
-def __repr__(self):
+    def __repr__(self):
         return utils.reprWithCls("%s in %s"%(repr(self.title),self.website),self) #pylint: disable=E1101:no-member
-
+    info=utils.infoprop
 class VideoR:
     def __init__(self,data,isChild=False,fromPlaylist=False):
         
@@ -232,7 +237,7 @@ class VideoR:
         return utils.reprWithCls(repr(self.title),utils.tname(self)+(" LIVE" if self.islive else "")) #pylint: disable=E1101:no-member
     def get(self):
         return video.Video.get(self.url) #pylint: disable=E1101:no-member
-
+    info=utils.infoprop
 
 class MovieR(VideoR):pass
 
@@ -262,6 +267,7 @@ class ChannelR:
 
     def __repr__(self):
         return utils.reprWithCls("%s in %s"%(repr(self.name),self.url),self) #pylint: disable=E1101:no-member
+    info=utils.infoprop
 class Channel(ListR):
     def __init__(self,data):
         #odata(data)
@@ -279,7 +285,7 @@ class Channel(ListR):
     @classmethod
     def get(cls,url):
         return cls(utils.extractVar(url,"ytInitialData"))
-    
+    info=utils.infoprop
 class ChannelPlayerVideoR:
     def __init__(self,data):
         #with utils-Info(self) as info:
@@ -294,7 +300,7 @@ class ChannelPlayerVideoR:
         self.publishedTime=utils.getText(data["publishedTimeText"])
     def __repr__(self):
         return utils.reprWithCls("%s in %s"%(repr(self.title),self.url),self) #pylint: disable=E1101:no-member
-    
+    info=utils.infoprop
 
 def getBadges(data,key):
     if not data:return []

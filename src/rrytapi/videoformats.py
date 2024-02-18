@@ -95,19 +95,27 @@ class Format:
 
     id=property(lambda self:self.itag)
     type=property(lambda self:self.mimeType)
-    videoQualityType=qualityType=property(lambda self:self.videoQuality.qualityType)
-    width=property(lambda self:self.size.width)
-    height=property(lambda self:self.size.height)
-    pixels=property(lambda self:self.videoQuality.qualityPixels)
-    qualityLabel=property(lambda self:self.videoQuality.qualityLabel)
-    fps=property(lambda self:self.videoQuality.fps)
-    audioQualityType=property(lambda self:self.audioQualityType)
-    sampleRate=property(lambda self:self.sampleRate)
+    videoQualityType=qualityType=property(lambda self:self.videoQuality.qualityType if self.videoQuality is not None else None)
+    width=property(lambda self:self.size.width if self.size is not None else None)
+    height=property(lambda self:self.size.height if self.size is not None else None)
+    pixels=property(lambda self:self.videoQuality.qualityPixels if self.videoQuality is not None else None)
+    qualityLabel=property(lambda self:self.videoQuality.qualityLabel if self.videoQuality is not None else None)
+    fps=property(lambda self:self.videoQuality.fps if self.videoQuality is not None else None)
+    audioQualityType=property(lambda self:self.audioQuality.qualityType if self.audioQuality is not None else None)
+    sampleRate=property(lambda self:self.audioQuality.sampleRate if self.audioQuality is not None else None)
 
-         
+    isVideo=property(lambda self:"video" in self.mimeType)
+    isAudio=property(lambda self:"audio" in self.mimeType)
+
+    info=utils.infoprop 
     
     def download(self,fileDest="rrytapi_downloads/{utils.to_filename(self.video.title)}_{self.itag}{self.extension}",resume=True,printInfo=True,showInExplorerBool=True,chunk_size=8192,waitIntervalToPrint=1):
-
+        try:
+            self=self.formats
+        except AttributeError:pass
+        if isinstance(self,Formats):
+            self=self("best")
+        
         global show
         #show=lambda:subprocess.call(["open","-R",repr(fileDest)]) if showInFinder else lambda:None
 #         print(fileDest)
@@ -231,19 +239,39 @@ class AudioQuality:
         return str(self.sampleRate)+"Hz("+self.qualityType+")"
     
     type=property(lambda self:self.qualityType)
+class NoFormatFound(Exception):pass
 class Formats(list):
     _fmt=None
 
     def __repr__(self):
         return rrprettier.prettify(self)
 
-    def __call__(self,itag):
-        for fmt in self:
-            if fmt.itag==itag:return fmt
+    def __call__(self,item):
+        if item=="best": return self[0]
+        
+        return self.filtrer(lambda x:(
+            x.itag==item or \
+            x.qualityType==item or \
+            str(x.qualityLabel)==str(item) or \
+            x.mimeType==item or \
+            x.audioQualityType==item or \
+            x.sampleRate==item or \
+            x.extension==item
+        ))
+    def __getattr__(self,attr):
+        try:
+            return self(attr)
+        except NoFormatFound:pass
+        raise AttributeError(attr)
+
+
     def filtrer(self,condition):
         #print("LA CONDITION")
 
-        return Formats([fmt for fmt in self if condition(fmt)])
+        fmts=Formats([fmt for fmt in self if condition(fmt)])
+        if not fmts:
+            raise NoFormatFound("No format found")
+        return fmts[0] if len(fmts)==1 else fmts
     #def download(self,url=defaultFileDest):
     #    url=defaultFileDest.format()
     @property
@@ -262,8 +290,6 @@ class Formats(list):
     def _mini_display(self):
         return f"<{len(self)} formats>"
     #__getattr__=__getitem__
+    download=Format.download
 
 
-class NoneFormats:
-    def __getattr__(self,*a,**k):return self
-    def __call__(self,*a,**k):return self
