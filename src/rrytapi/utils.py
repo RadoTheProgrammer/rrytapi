@@ -190,13 +190,15 @@ def printerWithCls(data,cls):
 
 
 
-def convert_audio(input_file,output_file="{input_file}.{ext or 'mp3'}",ext=None):
+def convert_audio(input_file,output_file="{input_file}.{ext or 'mp3'}",ext=None,frame_rate=None):
     from pydub import AudioSegment
     output_file=eval("f"+repr(output_file),locals()) #pylint: disable=W0123
     #print(output_file)
     if not ext:
         ext=os.path.splitext(output_file)[1].lstrip(".")
     audio=AudioSegment.from_file(input_file)
+    if frame_rate is not None and frame_rate!=audio.frame_rate:
+        audio=audio.set_frame_rate(frame_rate)
     audio.export(output_file,format=ext)
 
 def intorfloat(count):
