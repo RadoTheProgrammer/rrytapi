@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "rrytapi"
-version = "2.0.0"
+version = "2.1.0"
 description = ""
 authors = ["RadoTheProgrammer <rado@arazakar.com>"]
 readme = "README.md"
 license="MIT"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 pydub= ">=0.25.1"
