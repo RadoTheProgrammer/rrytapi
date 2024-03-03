@@ -8,3 +8,6 @@
 * [ ] experiment with symlink on windows
 * [X] github copilot: make download() faster
 * [ ] try wget alternative
+* [ ] try creating release in github, to pypi ?
+* [ ] remove creating symlinks in player.py
+* [ ] video+audio compare moviepy and ffmpeg
