@@ -7,7 +7,7 @@ readme = "README.md"
 license="MIT"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "3.11"
 pydub= ">=0.25.1"
 clean-text = "^0.6.0"
 js2py = "^0.74"
